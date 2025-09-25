@@ -1,0 +1,147 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Sep 24, 2025 at 01:56 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `barangay468_db`
+--
+CREATE DATABASE IF NOT EXISTS `barangay468_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `barangay468_db`;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `admin_users`
+--
+
+CREATE TABLE `admin_users` (
+  `id` int(11) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `position` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `status` enum('active','inactive') DEFAULT 'active'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `admin_users`
+--
+
+INSERT INTO `admin_users` (`id`, `first_name`, `last_name`, `email`, `position`, `password`, `created_at`, `status`) VALUES
+(1, 'Edrian', 'Valdez', 'admin@barangay468.gov.ph', 'Barangay Captain', '$2y$10$m8ilDb.50cCnkJKfygQtv.wziFdYsz.wMZr3AqTTvMlGKguVKfIhG', '2025-09-03 20:29:55', 'active');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `residents`
+--
+
+CREATE TABLE `residents` (
+  `resident_id` varchar(20) NOT NULL,
+  `fullname` varchar(100) NOT NULL,
+  `age` int(11) NOT NULL CHECK (`age` >= 0 and `age` <= 150),
+  `civil_status` enum('Single','Married','Widowed','Divorced','Separated') NOT NULL,
+  `gender` enum('Male','Female','Other') NOT NULL,
+  `contact_number` varchar(15) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `residents`
+--
+
+INSERT INTO `residents` (`resident_id`, `fullname`, `age`, `civil_status`, `gender`, `contact_number`, `email`, `created_at`, `updated_at`) VALUES
+('748-204-0001', 'Kobe Tayco', 18, 'Single', 'Male', '0912-345-4343', 'tayco@gmail.com', '2025-09-04 15:20:45', '2025-09-04 15:20:45'),
+('748-204-0002', 'Edrian Valdez', 20, 'Single', 'Male', '0912-345-4343', 'edrian@gmail.com', '2025-09-04 15:20:45', '2025-09-04 15:20:45'),
+('748-204-0003', 'Athdr Aranilla', 60, 'Single', 'Male', '0912-345-4343', 'aranilla@gmail.com', '2025-09-04 15:20:45', '2025-09-04 15:20:45'),
+('748-204-0004', 'Christian Somera', 80, 'Single', 'Male', '0912-345-4343', 'somera@gmail.com', '2025-09-04 15:20:45', '2025-09-04 15:20:45'),
+('748-204-0005', 'Mark de Guzman', 60, 'Single', 'Male', '0912-345-4343', 'mark@gmail.com', '2025-09-04 15:20:45', '2025-09-04 15:20:45');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `residents_users`
+--
+
+CREATE TABLE `residents_users` (
+  `id` int(11) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `status` enum('active','inactive') DEFAULT 'active'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `residents_users`
+--
+
+INSERT INTO `residents_users` (`id`, `first_name`, `last_name`, `email`, `password`, `created_at`, `status`) VALUES
+(1, 'Althird Cherson', 'Aranila', 'althirdcherson@gmail.com', '$2y$10$DTchBTvo0CPv7M/OE0ynQutu0XoF6XHlaMRiz6/elZAhJORbbuYg.', '2025-09-03 20:38:26', 'active');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `admin_users`
+--
+ALTER TABLE `admin_users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `residents`
+--
+ALTER TABLE `residents`
+  ADD PRIMARY KEY (`resident_id`),
+  ADD UNIQUE KEY `email` (`email`),
+  ADD KEY `idx_fullname` (`fullname`);
+
+--
+-- Indexes for table `residents_users`
+--
+ALTER TABLE `residents_users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `admin_users`
+--
+ALTER TABLE `admin_users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `residents_users`
+--
+ALTER TABLE `residents_users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
