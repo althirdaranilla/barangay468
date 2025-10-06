@@ -16,7 +16,7 @@ if (isset($_SESSION['user_id'])) {
     if ($_SESSION['user_type'] === 'official') {
         header('Location: admin/Dashboard.php');
     } else {
-        header('Location: residents/Dashboard.php');
+        header('Location: resident/Dashboard.php');
     }
     exit();
 }
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             // If not found in admin, check residents
-            $stmt_resident = $pdo->prepare("SELECT id, email, password, first_name, last_name FROM residents WHERE email = ?");
+            $stmt_resident = $pdo->prepare("SELECT id, email, password, first_name, last_name FROM residents_users WHERE email = ?");
             $stmt_resident->execute([$email]);
             $user_resident = $stmt_resident->fetch(PDO::FETCH_ASSOC);
             
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     setcookie('remember_token', $token, $expires, '/', '', false, true);
                 }
                 
-                header('Location: residents/Dashboard.php');
+                header('Location: resident/Dashboard.php');
                 exit();
             }
             
@@ -92,248 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .login-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            width: 900px;
-            max-width: 90%;
-            min-height: 500px;
-            display: flex;
-        }
-
-        .login-left {
-            background: linear-gradient(135deg, #2980b9 0%, #6dd5fa 100%);
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-left::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
-            animation: float 20s linear infinite;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            100% { transform: translateY(-100px); }
-        }
-
-        .logo {
-            text-align: center;
-            z-index: 1;
-        }
-
-        .logo img {
-            width: 200px;
-            height: auto;
-            margin-bottom: 10px;
-        }
-
-        .logo h1 {
-            color: white;
-            font-size: 2.5em;
-            font-weight: 300;
-            margin-bottom: 10px;
-        }
-
-        .logo p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.1em;
-        }
-
-        .login-right {
-            flex: 1;
-            padding: 60px 50px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .login-form h2 {
-            font-size: 2.5em;
-            color: #333;
-            margin-bottom: 40px;
-            font-weight: 300;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #2980b9;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.1);
-        }
-
-        /* Password field container */
-        .password-container {
-            position: relative;
-        }
-
-        .password-container input {
-            padding-right: 50px;
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            padding: 5px;
-            color: #666;
-            transition: color 0.3s ease;
-        }
-
-        .password-toggle:hover {
-            color: #2980b9;
-        }
-
-        .password-toggle svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .remember-me input[type="checkbox"] {
-            width: auto;
-        }
-
-        .forgot-password {
-            color: #2980b9;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .forgot-password:hover {
-            text-decoration: underline;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #2980b9 0%, #6dd5fa 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(41, 128, 185, 0.3);
-        }
-
-        .signup-link {
-            text-align: center;
-            margin-top: 25px;
-            color: #666;
-        }
-
-        .signup-link a {
-            color: #2980b9;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .signup-link a:hover {
-            text-decoration: underline;
-        }
-
-        .alert {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        @media (max-width: 768px) {
-            .login-container {
-                flex-direction: column;
-                width: 100%;
-                margin: 20px;
-            }
-
-            .login-left {
-                min-height: 200px;
-            }
-
-            .login-right {
-                padding: 40px 30px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="login-container">
@@ -402,22 +161,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <script>
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const eyeOpen = document.getElementById('eye-open');
-            const eyeClosed = document.getElementById('eye-closed');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeOpen.style.display = 'block';
-                eyeClosed.style.display = 'none';
-            } else {
-                passwordInput.type = 'password';
-                eyeOpen.style.display = 'none';
-                eyeClosed.style.display = 'block';
-            }
-        }
-    </script>
+    <script src="js/script.js"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 24, 2025 at 01:56 PM
+-- Generation Time: Oct 06, 2025 at 06:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -46,6 +46,93 @@ CREATE TABLE `admin_users` (
 
 INSERT INTO `admin_users` (`id`, `first_name`, `last_name`, `email`, `position`, `password`, `created_at`, `status`) VALUES
 (1, 'Edrian', 'Valdez', 'admin@barangay468.gov.ph', 'Barangay Captain', '$2y$10$m8ilDb.50cCnkJKfygQtv.wziFdYsz.wMZr3AqTTvMlGKguVKfIhG', '2025-09-03 20:29:55', 'active');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `certificate_requests`
+--
+
+CREATE TABLE `certificate_requests` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `middle_name` varchar(100) DEFAULT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `cellphone` varchar(20) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `household_number` varchar(50) NOT NULL,
+  `purpose` varchar(255) NOT NULL,
+  `certificate_type` enum('Residency Certificate','Indigency Certificate','Employment Certificate') NOT NULL,
+  `status` enum('Pending','Approved','Rejected') DEFAULT 'Pending',
+  `date_requested` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `certificate_requests`
+--
+
+INSERT INTO `certificate_requests` (`id`, `user_id`, `first_name`, `middle_name`, `last_name`, `email`, `cellphone`, `address`, `household_number`, `purpose`, `certificate_type`, `status`, `date_requested`) VALUES
+(1, 2, 'Althird Cherson', 'Tranquilan', 'Aranilla', 'althirdcherson@gmail.com', '09660671237', 'P.Campa, Manila', '1234', 'Sample', 'Indigency Certificate', 'Pending', '2025-10-06 15:07:47');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `clearance_requests`
+--
+
+CREATE TABLE `clearance_requests` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `middle_name` varchar(100) DEFAULT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `cellphone` varchar(20) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `household_number` varchar(50) NOT NULL,
+  `purpose` varchar(255) NOT NULL,
+  `status` enum('Pending','Approved','Rejected') DEFAULT 'Pending',
+  `date_requested` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `clearance_requests`
+--
+
+INSERT INTO `clearance_requests` (`id`, `user_id`, `first_name`, `middle_name`, `last_name`, `email`, `cellphone`, `address`, `household_number`, `purpose`, `status`, `date_requested`) VALUES
+(4, 2, 'Sample', 'Data', 'Lang', 'lang@gmail.com', '2179637812', 'sample manila', '1000', 'SAMPLE', 'Pending', '2025-10-06 16:11:59');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `permit_requests`
+--
+
+CREATE TABLE `permit_requests` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `first_name` varchar(100) NOT NULL,
+  `middle_name` varchar(100) DEFAULT NULL,
+  `last_name` varchar(100) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `cellphone` varchar(20) NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `household_number` varchar(50) NOT NULL,
+  `purpose` varchar(255) NOT NULL,
+  `permit_type` enum('Business Permit','Building Permit','Event Permit') NOT NULL,
+  `status` enum('Pending','Approved','Rejected') DEFAULT 'Pending',
+  `date_requested` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `permit_requests`
+--
+
+INSERT INTO `permit_requests` (`id`, `user_id`, `first_name`, `middle_name`, `last_name`, `email`, `cellphone`, `address`, `household_number`, `purpose`, `permit_type`, `status`, `date_requested`) VALUES
+(1, 2, 'Althird Cherson', 'Tranquilan', 'Aranilla', 'althirdcherson@gmail.com', '09660671237', 'P.Campa, Manila', '1234', 'Sample', 'Business Permit', 'Pending', '2025-10-06 15:07:29'),
+(2, 2, 'Edrian', 'Udtohan', 'Valdez', 'valdez@gmail.com', '12345678901', 'P.Campa, Manila', '1001', 'Sample', 'Event Permit', 'Pending', '2025-10-06 15:58:58');
 
 -- --------------------------------------------------------
 
@@ -97,7 +184,7 @@ CREATE TABLE `residents_users` (
 --
 
 INSERT INTO `residents_users` (`id`, `first_name`, `last_name`, `email`, `password`, `created_at`, `status`) VALUES
-(1, 'Althird Cherson', 'Aranila', 'althirdcherson@gmail.com', '$2y$10$DTchBTvo0CPv7M/OE0ynQutu0XoF6XHlaMRiz6/elZAhJORbbuYg.', '2025-09-03 20:38:26', 'active');
+(2, 'Althird Cherson', 'Aranila', 'althirdcherson@gmail.com', '$2y$10$DE3CgxIFopMEvNZtHBAbpOFigwot2j494qIOqcyrz1.cRdPtKHULu', '2025-10-06 22:13:39', 'active');
 
 --
 -- Indexes for dumped tables
@@ -109,6 +196,27 @@ INSERT INTO `residents_users` (`id`, `first_name`, `last_name`, `email`, `passwo
 ALTER TABLE `admin_users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
+
+--
+-- Indexes for table `certificate_requests`
+--
+ALTER TABLE `certificate_requests`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `clearance_requests`
+--
+ALTER TABLE `clearance_requests`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `permit_requests`
+--
+ALTER TABLE `permit_requests`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `residents`
@@ -136,10 +244,50 @@ ALTER TABLE `admin_users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `certificate_requests`
+--
+ALTER TABLE `certificate_requests`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `clearance_requests`
+--
+ALTER TABLE `clearance_requests`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `permit_requests`
+--
+ALTER TABLE `permit_requests`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `residents_users`
 --
 ALTER TABLE `residents_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `certificate_requests`
+--
+ALTER TABLE `certificate_requests`
+  ADD CONSTRAINT `certificate_requests_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `residents_users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `clearance_requests`
+--
+ALTER TABLE `clearance_requests`
+  ADD CONSTRAINT `clearance_requests_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `residents_users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `permit_requests`
+--
+ALTER TABLE `permit_requests`
+  ADD CONSTRAINT `permit_requests_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `residents_users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

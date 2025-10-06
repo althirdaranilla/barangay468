@@ -47,7 +47,7 @@ if ($_POST) {
             $stmt = $pdo->prepare("
                 SELECT id FROM admin_users WHERE email = ?
                 UNION
-                SELECT id FROM residents WHERE email = ?
+                SELECT id FROM residents_users WHERE email = ?
             ");
             $stmt->execute([$email, $email]);
             if ($stmt->rowCount() > 0) {
@@ -81,7 +81,7 @@ if ($_POST) {
             } else {
                 // Insert new resident user (assuming 'residents' table exists with similar structure minus position)
                 $stmt = $pdo->prepare("
-                    INSERT INTO residents (first_name, last_name, email, password, created_at, status) 
+                    INSERT INTO residents_users (first_name, last_name, email, password, created_at, status) 
                     VALUES (?, ?, ?, ?, NOW(), 'active')
                 ");
                 
@@ -114,294 +114,19 @@ if ($_POST) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Registration - Barangay 468</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .container {
-            display: flex;
-            width: 100%;
-            max-width: 1200px;
-            margin: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border-radius: 20px;
-            overflow: hidden;
-            background: white;
-        }
-
-        .left-panel {
-            flex: 1;
-            background: linear-gradient(135deg, #2980b9 0%, #6dd5fa 100%);
-            padding: 60px 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-        }
-
-        .logo {
-            width: 300px;
-            height: 300px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .logo-inner {
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #1565C0, #E53935);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .logo-inner::before {
-            content: '';
-            position: absolute;
-            width: 60px;
-            height: 120px;
-            background: white;
-            border-radius: 30px 0 0 30px;
-            left: 20px;
-        }
-
-        .logo-text {
-            position: absolute;
-            top: 10px;
-            font-size: 10px;
-            font-weight: bold;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .logo-number {
-            position: absolute;
-            bottom: 10px;
-            font-size: 12px;
-            font-weight: bold;
-            color: white;
-        }
-
-        .welcome-text {
-            font-size: 36px;
-            font-weight: 300;
-            margin-bottom: 10px;
-        }
-
-        .welcome-subtext {
-            font-size: 18px;
-            opacity: 0.9;
-        }
-
-        .right-panel {
-            flex: 1;
-            padding: 60px 40px;
-            background: white;
-        }
-
-        .form-title {
-            font-size: 32px;
-            font-weight: 400;
-            color: #333;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #666;
-            font-size: 14px;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #E0E0E0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-            background: #FAFAFA;
-        }
-
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="password"]:focus,
-        select:focus {
-            outline: none;
-            border-color: #4FC3F7;
-            background: white;
-        }
-
-        select {
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 12px center;
-            background-repeat: no-repeat;
-            background-size: 16px;
-            padding-right: 40px;
-            appearance: none;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            margin: 25px 0;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            margin-right: 10px;
-            transform: scale(1.2);
-        }
-
-        .checkbox-group label {
-            margin-bottom: 0;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .terms-link {
-            color: #4FC3F7;
-            text-decoration: none;
-        }
-
-        .terms-link:hover {
-            text-decoration: underline;
-        }
-
-        .register-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #4FC3F7, #29B6F6);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .register-btn:hover {
-            background: linear-gradient(135deg, #29B6F6, #0288D1);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(79, 195, 247, 0.3);
-        }
-
-        .register-btn:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .signin-link {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-            font-size: 14px;
-        }
-
-        .signin-link a {
-            color: #4FC3F7;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .signin-link a:hover {
-            text-decoration: underline;
-        }
-
-        .error-message {
-            background: #ffebee;
-            border: 1px solid #f44336;
-            color: #f44336;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .success-message {
-            background: #e8f5e8;
-            border: 1px solid #4caf50;
-            color: #4caf50;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                margin: 10px;
-            }
-            
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-            
-            .left-panel,
-            .right-panel {
-                padding: 40px 30px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="left-panel">
-            <div class="logo">
+    <div class="register-container">
+        <div class="register-left">
+            <div class="register-logo">
                 <img src="images/logo.png" alt="Logo">
             </div>
             <h1 class="welcome-text">Join Us</h1>
             <p class="welcome-subtext">Create your account</p>
         </div>
 
-        <div class="right-panel">
+        <div class="register-right">
             <h2 class="form-title">REGISTER</h2>
             
             <?php if (!empty($errors)): ?>
@@ -485,27 +210,6 @@ if ($_POST) {
         </div>
     </div>
 
-    <script>
-        // Handle dynamic show/hide of position field
-        document.getElementById('user_type').addEventListener('change', function() {
-            var positionGroup = document.getElementById('position_group');
-            if (this.value === 'official') {
-                positionGroup.style.display = 'block';
-            } else {
-                positionGroup.style.display = 'none';
-            }
-        });
-
-        // Set initial visibility based on PHP variable (for form repopulation after errors)
-        window.addEventListener('load', function() {
-            var userType = "<?php echo isset($user_type) ? $user_type : ''; ?>";
-            var positionGroup = document.getElementById('position_group');
-            if (userType === 'official') {
-                positionGroup.style.display = 'block';
-            } else {
-                positionGroup.style.display = 'none';
-            }
-        });
-    </script>
+    <script src="js/script.js"></script>
 </body>
 </html>
