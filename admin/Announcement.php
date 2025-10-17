@@ -1,8 +1,9 @@
 <?php
 // Simulating user authentication - in a real application, this would come from session
+require "../database/connection.php";
 $isAdmin = true;
-$adminName = "Admin";
-
+$adminName = $_SESSION["user_name"];
+$user_role = $_SESSION["user_position"];
 // Sample announcements data
 $announcements = [
     [
@@ -46,7 +47,16 @@ $announcements = [
         'status' => 'Scheduled'
     ]
 ];
+$sql_announcements = "SELECT * FROM announcements ORDER BY date DESC";
+$result_announcements = $conn->query($sql_announcements);
+if ($result_announcements === false) {
+    die("Error retrieving announcements: " . $conn->error);
+}
 
+$announcements = [];
+while ($row = $result_announcements->fetch_assoc()) {
+    $announcements[] = $row;
+}
 // Navigation menu items
 $nav_items = [
     [
@@ -66,7 +76,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Officials',
-                'url' => '../admin/AdminManageOfficials.php',
+                'url' => '../admin/ManageOfficials.php',
                 'icon' => 'circle'
             ],
             [
@@ -85,7 +95,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'ClearanceRequest.php',
+                'url' => 'Clearance.php',
                 'icon' => 'circle'
             ],
             [
@@ -169,7 +179,88 @@ $nav_items = [
         'submenu' => []
     ]
 ];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if(isset($_POST['publish']) || isset($_POST['save'])){
+        $status = "Draft";
+        if(isset($_POST['publish'])){
+            $status = "Published";
+        }
 
+        $image_path = ""; // Initialize image_path as an empty string
+        $upload_dir = "../Announcements/";
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir);
+        }
+        // Check if an image has been uploaded
+        if (isset($_FILES['poster']) && $_FILES['poster']['error'] == 0) {
+            $image_tmp = $_FILES['poster']['tmp_name'];
+            $image_name = $_FILES['poster']['name']; // Define your uploads folder
+            $image_path = $upload_dir . basename($image_name);
+            $imageFileType = strtolower(pathinfo($image_path, PATHINFO_EXTENSION));
+            $is_valid_img = in_array($imageFileType, array("jpg", "png", "jpeg", "gif", "jfif", "tiff"));
+            $img_exists = file_exists($image_path);
+
+            if (!$img_exists && $is_valid_img) {
+                if (!move_uploaded_file($image_tmp, $image_path)) {
+                    echo "<script>alert('Error uploading image.');</script>";
+                }
+            } else {
+                if (!$is_valid_img) {
+                    echo "<script>alert('Invalid Image Type.');</script>";
+                } else {
+                    echo "<script>alert('Image already exists.');</script>";
+                }
+            }
+        }
+        $stmt = $conn->prepare("INSERT INTO announcements (number) VALUES (NULL) ");
+        if ($stmt->execute()) {
+            $last_id = $conn->insert_id;
+            $hex_id = sprintf('%03X', $last_id);
+            $id = "ANN-" . $hex_id;
+            $author = $user_role;
+            $title = $_POST["title"];
+            $date = $_POST["date"];
+            $description = $_POST["description"];
+            $stmt = $conn->prepare("UPDATE announcements SET id=?, author=?, title=?, date=?, description=?, status=?, poster=? WHERE number=?");
+            $stmt->bind_param("ssssssss", $id, $author, $title, $date, $description, $status, $image_path, $last_id);
+            if ($stmt->execute()) {
+                echo "<script>console.log('Announcement created.');</script>";
+                log_activity($user_role, "Added", "an Announcement", $conn);
+            } else {
+                echo "<script>console.log('Failed to create announcement.');</script>";
+            }
+            $stmt->close();
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            die;
+        } else {
+            $stmt->close();
+            echo "<script>console.log('Failed to create announcement.');</script>";
+        }
+
+    } else if(isset($_POST['delete'])) {
+        $id = $_POST['id'];
+        $stmt = $conn->prepare("DELETE FROM announcements WHERE id=?");
+        $stmt->bind_param("s", $id);
+        if ($stmt->execute()) {
+            echo "<script>console.log('Announcement Deleted.');</script>";
+            log_activity($user_role, "Deleted", "an Announcement", $conn);
+        } else {
+            echo "<script>console.log('Failed to create announcement.');</script>";
+        }
+    } else if(isset($_POST['hide'])){
+        $id = $_POST['id'];
+        $status = $_POST['status'];
+        $new_status = $status != "Hidden" ? "Hidden" : "Published";
+        $stmt = $conn->prepare("UPDATE announcements SET status=? WHERE id=?");
+        $stmt->bind_param("ss", $new_status, $id);
+        if ($stmt->execute()) {
+            echo "<script>console.log('Announcement Deleted.');</script>";
+            log_activity($user_role, "Updated", "an Announcement", $conn);
+        } else {
+            echo "<script>console.log('Failed to create announcement.');</script>";
+        }
+    }
+}
 // Status colors
 $statusColors = [
     'Published' => '#28a745',
@@ -573,7 +664,14 @@ $statusColors = [
             border-radius: 5px;
             cursor: pointer;
         }
-
+        .admin-form-save {
+            background: #218838;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
         .admin-table-controls {
             display: flex;
             align-items: center;
@@ -852,25 +950,25 @@ $statusColors = [
                     <h2 class="admin-section-title">Add Announcement</h2>
                 </div>
 
-                <form class="admin-announcement-form">
+                <form class="admin-announcement-form" method="POST">
                     <div class="admin-form-grid">
                         <div class="admin-form-group">
                             <label class="admin-form-label">Author:</label>
-                            <input type="text" class="admin-form-input" placeholder="Enter Author" value="Admin">
+                            <input type="text" name="author" class="admin-form-input" placeholder="Enter Author" value="<?php echo $user_role ?>">
                         </div>
                         <div class="admin-form-group">
                             <label class="admin-form-label">Title:</label>
-                            <input type="text" class="admin-form-input" placeholder="Enter title">
+                            <input type="text" name="title" class="admin-form-input" placeholder="Enter title">
                         </div>
                         <div class="admin-form-group">
                             <label class="admin-form-label">Date:</label>
-                            <input type="text" class="admin-form-input" placeholder="mm/dd/yy">
+                            <input type="date" name="date" class="admin-form-input" id="date-picker" placeholder="mm/dd/yy">
                         </div>
                     </div>
 
                     <div class="admin-form-group">
                         <label class="admin-form-label">Description:</label>
-                        <textarea class="admin-form-textarea" placeholder="Enter Content"></textarea>
+                        <textarea class="admin-form-textarea" name="description" placeholder="Enter Content"></textarea>
                     </div>
 
                     <div class="admin-form-divider"></div>
@@ -878,7 +976,7 @@ $statusColors = [
                     <div class="admin-form-group">
                         <label class="admin-form-label">Upload Poster:</label>
                         <div class="admin-file-upload">
-                            <input type="file" id="poster-upload" class="admin-file-input">
+                            <input type="file" id="poster-upload" name="poster" class="admin-file-input">
                             <label for="poster-upload" class="admin-file-label">Upload File</label>
                             <span class="admin-file-name">No file chosen</span>
                         </div>
@@ -886,7 +984,8 @@ $statusColors = [
 
                     <div class="admin-form-actions">
                         <button type="button" class="admin-form-cancel">Cancel</button>
-                        <button type="submit" class="admin-form-submit">Publish Announcement</button>
+                        <button type="submit" name="publish" class="admin-form-submit">Publish Announcement</button>
+                        <button type="submit" name="save" class="admin-form-save">Save Draft</button>
                     </div>
                 </form>
             </div>
@@ -948,23 +1047,26 @@ $statusColors = [
                                     <span class="admin-status-badge" style="background-color: <?php echo $statusColor; ?>;">
                                         <?php echo $announcement['status']; ?>
                                     </span>
-                                </td>
                                 <td>
-                                    <button class="admin-action-btn">
-                                        <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                                        </svg>
-                                    </button>
-                                    <button class="admin-action-btn">
-                                        <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                                        </svg>
-                                    </button>
-                                    <button class="admin-action-btn">
-                                        <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                        </svg>
-                                    </button>
+                                    <form method="POST">
+                                        <input type="hidden" name="id" value="<?php echo $announcement["id"] ?>"/>
+                                        <input type="hidden" name="status" value="<?php echo $announcement["status"] ?>"/>
+                                        <button class="admin-action-btn" type="submit" value="hide">
+                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="admin-action-btn" type="submit" value="edit">
+                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="admin-action-btn" type="submit" value="delete">
+                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                            </svg>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -997,6 +1099,8 @@ $statusColors = [
 
     <script>
         // JavaScript to handle submenu toggling
+        document.getElementById("date-picker").min = new Date().toISOString().split("T")[0];
+        
         document.querySelectorAll('.admin-nav-link.expandable').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();

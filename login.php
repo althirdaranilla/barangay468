@@ -2,7 +2,10 @@
 session_start();
 
 // Database configuration
-
+$host = "127.0.0.1";
+$dbname = "barangay468_db";
+$username = "root";
+$password = "";
 // Initialize variables
 $error = '';
 $success = '';
@@ -41,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_email'] = $user_admin['email'];
                 $_SESSION['user_name'] = $user_admin['first_name'] . ' ' . $user_admin['last_name'];
                 $_SESSION['user_position'] = $user_admin['position'];
-                
+                $_SESSION['is_admin'] = True;
                 if ($remember) {
                     $token = bin2hex(random_bytes(32));
                     $expires = time() + (30 * 24 * 60 * 60); // 30 days
@@ -62,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_id'] = $user_resident['id'];
                 $_SESSION['user_email'] = $user_resident['email'];
                 $_SESSION['user_name'] = $user_resident['first_name'] . ' ' . $user_resident['last_name'];
-                
+                $_SESSION['is_admin'] = False;
                 if ($remember) {
                     $token = bin2hex(random_bytes(32));
                     $expires = time() + (30 * 24 * 60 * 60); // 30 days

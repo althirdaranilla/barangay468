@@ -1,7 +1,13 @@
 <?php
+require "../database/connection.php";
+require "../database/log_activity.php";
+
 // Simulating user authentication - in a real application, this would come from session
 $isAdmin = true;
-$adminName = "Admin";
+$admin_name = $_SESSION['user_name'];
+$user_role = $_SESSION['user_position'];
+
+log_activity($user_role, "Viewed", "Audit Logs", $conn);
 
 // Sample audit logs data
 $auditLogs = [
@@ -82,7 +88,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Officials',
-                'url' => '../admin/AdminManageOfficials.php',
+                'url' => '../admin/ManageOfficials.php',
                 'icon' => 'circle'
             ],
             [
@@ -101,7 +107,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'ClearanceRequest.php',
+                'url' => 'Clearance.php',
                 'icon' => 'circle'
             ],
             [
@@ -703,7 +709,7 @@ $actionColors = [
         <!-- Main Content -->
         <div class="admin-main-content">
             <div class="admin-header">
-                <h1 class="admin-welcome-text">Welcome, <?php echo $adminName; ?></h1>
+                <h1 class="admin-welcome-text">Welcome, <?php echo $admin_name; ?></h1>
                 <div class="admin-header-right">
                     <div class="admin-search-container">
                         <div class="admin-search-icon">

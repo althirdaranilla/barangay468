@@ -55,7 +55,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'ClearanceRequest.php',
+                'url' => 'Clearance.php',
                 'icon' => 'circle'
             ],
             [
@@ -79,7 +79,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Resident Records',
-                'url' => 'Residents.php',
+                'url' => 'AddResidents.php',
                 'icon' => 'circle'
             ],
             [

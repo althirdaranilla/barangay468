@@ -54,7 +54,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'ClearanceRequest.php',
+                'url' => 'Clearance.php',
                 'icon' => 'circle'
             ],
             [

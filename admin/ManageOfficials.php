@@ -1,19 +1,48 @@
 <?php
 session_start();
-
+require "../database/connection.php";
+require "../database/log_activity.php";
 // Check if admin is logged in
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+if (!$_SESSION['is_admin']) {
     header("Location: ../login.php");
     exit();
 }
-
-// Database connection
-require_once 'db_config.php';
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+log_activity($_SESSION['user_position'], "Viewed", "Manage Officials", $conn);
 
 // Fetch officials data from database
 $officials = [];
+
+$host = '127.0.0.1';
+$dbname = 'u539413584_db';
+$username = 'u539413584_admin';
+$password = 'Q5b&kOh+2';
+$port = 3306;
 try {
-    $stmt = $pdo->prepare("SELECT * FROM officials ORDER BY position_order, fullname");
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $_SESSION['online'] = true;
+} catch (Exception $e) {
+    $error = $e->getMessage();
+    $err_str = (string) $error;
+    echo "<script>";
+    echo "console.log('Connection to database failed');";
+    echo "console.log('Connecting to local database.');";
+    echo "</script>";
+    $_SESSION['online'] = false;
+    $dbname = 'barangay468_db';
+    $username = "root";
+    $password = "";
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    if ($conn->connect_error) {
+        echo "alert('Connection to database failed: $conn->connect_error')";
+    }
+}
+try {
+    $stmt = $pdo->prepare("SELECT * FROM admin_users ORDER BY last_name");
     $stmt->execute();
     $officials = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -28,7 +57,7 @@ if (isset($_GET['delete_id'])) {
         $stmt = $pdo->prepare("DELETE FROM officials WHERE id = ?");
         $stmt->execute([$delete_id]);
         $_SESSION['message'] = "Official deleted successfully.";
-        header("Location: AdminManageOfficials.php");
+        header("Location: ManageOfficials.php");
         exit();
     } catch (PDOException $e) {
         error_log("Delete error: " . $e->getMessage());
@@ -67,7 +96,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Officials',
-                'url' => 'AdminManageOfficials.php',
+                'url' => 'ManageOfficials.php',
                 'icon' => 'circle'
             ],
             [
@@ -86,7 +115,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'ClearanceRequest.php',
+                'url' => 'Clearance.php',
                 'icon' => 'circle'
             ],
             [
@@ -763,8 +792,8 @@ function getIcon($icon_name) {
                         <?php if (count($officials) > 0): ?>
                             <?php foreach($officials as $official): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($official['fullname']); ?></td>
-                                <td><?php echo htmlspecialchars($official['official_id']); ?></td>
+                                <td><?php echo htmlspecialchars($official['first_name'] . " " . $official['first_name']); ?></td>
+                                <td><?php echo htmlspecialchars($official['email']); ?></td>
                                 <td><?php echo htmlspecialchars($official['position']); ?></td>
                                 <td>
                                     <span class="status-badge <?php echo strtolower($official['status']) == 'active' ? 'status-active' : 'status-inactive'; ?>">
@@ -853,7 +882,7 @@ function getIcon($icon_name) {
         // Delete confirmation
         function confirmDelete(id, name) {
             if (confirm(`Are you sure you want to delete ${name}?`)) {
-                window.location.href = `AdminManageOfficials.php?delete_id=${id}`;
+                window.location.href = `ManageOfficials.php?delete_id=${id}`;
             }
         }
 

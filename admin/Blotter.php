@@ -71,7 +71,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Officials',
-                'url' => '../admin/AdminManageOfficials.php',
+                'url' => '../admin/ManageOfficials.php',
                 'icon' => 'circle'
             ],
             [
@@ -90,7 +90,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'ClearanceRequest.php',
+                'url' => 'Clearance.php',
                 'icon' => 'circle'
             ],
             [

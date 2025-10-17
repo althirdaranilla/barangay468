@@ -30,7 +30,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Barangay Clearance',
-                'url' => 'ClearanceRequest.php',
+                'url' => 'Clearance.php',
                 'icon' => 'circle'
             ],
             [

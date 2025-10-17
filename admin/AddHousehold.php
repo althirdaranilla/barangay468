@@ -22,7 +22,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Officials',
-                'url' => '../admin/AdminManageOfficials.php',
+                'url' => '../admin/ManageOfficials.php',
                 'icon' => 'circle'
             ],
             [
@@ -41,7 +41,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'ClearanceRequest.php',
+                'url' => 'Clearance.php',
                 'icon' => 'circle'
             ],
             [
@@ -125,6 +125,11 @@ $nav_items = [
         'submenu' => []
     ]
 ];
+
+if($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -662,13 +667,13 @@ $nav_items = [
                     <!-- Household Number -->
                     <div class="admin-form-group admin-form-fullwidth">
                         <label class="admin-form-label">Household Number</label>
-                        <input type="text" class="admin-form-input" placeholder="Enter Household Number" required>
+                        <input type="text" name="hh-no" class="admin-form-input" placeholder="Enter Household Number" required>
                     </div>
 
                     <!-- Head of the Family -->
                     <div class="admin-form-group admin-form-fullwidth">
                         <label class="admin-form-label">Head of the Family</label>
-                        <input type="text" class="admin-form-input" placeholder="Enter head of the family" required>
+                        <input type="text" name="head" class="admin-form-input" placeholder="Enter head of the family" required>
                     </div>
 
                     <!-- Family Members Section -->
@@ -679,11 +684,11 @@ $nav_items = [
                             <div class="admin-member-form">
                                 <div>
                                     <label class="admin-form-label">First Name</label>
-                                    <input type="text" class="admin-form-input" placeholder="Enter first name">
+                                    <input type="text" name="first-name[]" class="admin-form-input" placeholder="Enter first name">
                                 </div>
                                 <div>
                                     <label class="admin-form-label">Last Name</label>
-                                    <input type="text" class="admin-form-input" placeholder="Enter last name">
+                                    <input type="text" name="last-name[]" class="admin-form-input" placeholder="Enter last name">
                                 </div>
                                 <button type="button" class="admin-btn-add-member">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
