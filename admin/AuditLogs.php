@@ -68,7 +68,16 @@ $auditLogs = [
         'device' => 'Desktop'
     ]
 ];
+$sql_logs = "SELECT * FROM logs ORDER BY timestamp DESC";
+$result_logs = $conn->query($sql_logs);
+if ($result_logs === false) {
+    die("Error retrieving announcements: " . $conn->error);
+}
 
+$auditLogs = [];
+while ($row = $result_logs->fetch_assoc()) {
+    $auditLogs[] = $row;
+}
 // Navigation menu items
 $nav_items = [
     [
@@ -131,7 +140,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Resident Records',
-                'url' => 'ResidentRecords.php',
+                'url' => 'Residents.php',
                 'icon' => 'circle'
             ],
             [
@@ -769,18 +778,17 @@ $actionColors = [
                         </thead>
                         <tbody>
                             <?php foreach ($auditLogs as $log): 
-                                $actionType = explode(' ', $log['action_made'])[0];
-                                $actionColor = $actionColors[$actionType] ?? '#6c757d';
+                                $actionColor = $actionColors[$log['type']] ?? '#6c757d';
                             ?>
                             <tr>
-                                <td><?php echo $log['log_id']; ?></td>
+                                <td><?php echo $log['id']; ?></td>
                                 <td><?php echo $log['user_role']; ?></td>
                                 <td>
                                     <span class="admin-action-badge" style="background-color: <?php echo $actionColor; ?>; color: white;">
-                                        <?php echo $log['action_made']; ?>
+                                        <?php echo $log['action']; ?>
                                     </span>
                                 </td>
-                                <td><?php echo $log['time_stamp']; ?></td>
+                                <td><?php echo $log['timestamp']; ?></td>
                                 <td>
                                     <span class="admin-device-badge">
                                         <?php echo $log['device']; ?>

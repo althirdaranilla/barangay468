@@ -69,13 +69,13 @@ $nav_items = [
     [
         'name' => 'Documents',
         'icon' => 'documents',
-        'url' => '#',
+        'url' => 'Documents.php',
         'active' => false,
         'expandable' => true,
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'Clearance.php',
+                'url' => 'ClearanceRequest.php',
                 'icon' => 'circle'
             ],
             [
@@ -99,7 +99,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Resident Records',
-                'url' => 'ResidentRecords.php',
+                'url' => 'Residents.php',
                 'icon' => 'circle'
             ],
             [
@@ -126,7 +126,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Blotter Records',
-                'url' => 'BlotterRecords.php',
+                'url' => 'Blotter.php',
                 'icon' => 'circle'
             ]
         ]

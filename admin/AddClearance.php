@@ -27,13 +27,13 @@ $nav_items = [
     [
         'name' => 'Documents',
         'icon' => 'documents',
-        'url' => '#',
+        'url' => 'Documents.php',
         'active' => true,
         'expandable' => true,
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'Clearance.php',
+                'url' => 'ClearanceRequest.php',
                 'icon' => 'circle'
             ],
             [
@@ -57,7 +57,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Resident Records',
-                'url' => 'ResidentRecords.php',
+                'url' => 'Residents.php',
                 'icon' => 'circle'
             ],
             [
@@ -84,7 +84,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Blotter Records',
-                'url' => 'BlotterRecords.php',
+                'url' => 'Blotter.php',
                 'icon' => 'circle'
             ]
         ]
@@ -295,6 +295,7 @@ $purposes = [
             flex: 1;
             margin-left: 280px;
             padding: 20px;
+            width: 100%;
         }
 
         .admin-header {

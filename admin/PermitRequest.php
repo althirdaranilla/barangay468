@@ -1,8 +1,76 @@
 <?php
 // Simulating user authentication - in a real application, this would come from session
-$isAdmin = true;
-$adminName = "Admin";
+require "../database/connection.php";
+require "../database/log_activity.php";
 
+$isAdmin = true;
+$admin_name = $_SESSION['user_name'];
+$user_role = $_SESSION['user_position'];
+
+log_activity($user_role, "Viewed", "Permit Requests", $conn);
+// Sample permit request data
+$permitRequests = [
+    [
+        'permit_id' => 'C1-2024-0001',
+        'fullname' => 'Kobe Tayco',
+        'email' => 'tayco@gmail.com',
+        'purpose' => 'Work',
+        'date_requested' => '10/24/2024',
+        'date_issued' => '10/24/2024',
+        'validity' => '1/24/2025',
+        'status' => 'Printing'
+    ],
+    [
+        'permit_id' => 'C1-2024-0002',
+        'fullname' => 'Edrian Valdez',
+        'email' => 'valdez@gmail.com',
+        'purpose' => 'Visa',
+        'date_requested' => '10/22/2024',
+        'date_issued' => '10/24/2024',
+        'validity' => '1/24/2025',
+        'status' => 'Approved'
+    ],
+    [
+        'permit_id' => 'C1-2024-0003',
+        'fullname' => 'Althief Aranilla',
+        'email' => 'aranilla@gmail.com',
+        'purpose' => 'Work',
+        'date_requested' => '10/20/2024',
+        'date_issued' => '10/24/2024',
+        'validity' => '1/24/2025',
+        'status' => 'Rejected'
+    ],
+    [
+        'permit_id' => 'C1-2024-0004',
+        'fullname' => 'Christian Somera',
+        'email' => 'somera@gmail.com',
+        'purpose' => 'Work',
+        'date_requested' => '10/20/2024',
+        'date_issued' => '10/24/2024',
+        'validity' => '1/24/2025',
+        'status' => 'Approved'
+    ],
+    [
+        'permit_id' => 'C1-2024-0005',
+        'fullname' => 'Mark de Guzman',
+        'email' => 'mark@gmail.com',
+        'purpose' => 'Work',
+        'date_requested' => '10/19/2024',
+        'date_issued' => '10/24/2024',
+        'validity' => '1/24/2025',
+        'status' => 'Approved'
+    ]
+];
+$sql_permit = "SELECT * FROM permit_requests ORDER BY date_requested DESC";
+$result_permit = $conn->query($sql_permit);
+if ($result_permit === false) {
+    die("Error retrieving announcements: " . $conn->error);
+}
+
+$permitRequests = [];
+while ($row = $result_permit->fetch_assoc()) {
+    $permitRequests[] = $row;
+}
 // Navigation menu items
 $nav_items = [
     [
@@ -36,13 +104,14 @@ $nav_items = [
         'name' => 'Documents',
         'icon' => 'documents',
         'url' => 'Documents.php',
-        'active' => false,
+        'active' => true,
         'expandable' => true,
         'submenu' => [
             [
-                'name' => 'Manage Clearance Request',
+                'name' => 'Manage Permit Request',
                 'url' => 'ClearanceRequest.php',
-                'icon' => 'circle'
+                'icon' => 'circle',
+                'active' => true
             ],
             [
                 'name' => 'Manage Permit Request',
@@ -79,7 +148,7 @@ $nav_items = [
         'name' => 'Households',
         'icon' => 'households',
         'url' => '#',
-        'active' => true,
+        'active' => false,
         'expandable' => false,
         'submenu' => []
     ],
@@ -126,9 +195,13 @@ $nav_items = [
     ]
 ];
 
-if($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-}
+// Status colorsiuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu
+$statusColors = [
+    'Printing' => '#17a2b8',
+    'Approved' => '#28a745',
+    'Rejected' => '#dc3545',
+    'Pending' => '#ffc107'
+];
 
 ?>
 <!DOCTYPE html>
@@ -136,7 +209,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Add Household</title>
+    <title>Admin - Manage Permit Requests</title>
     <style>
         * {
             margin: 0;
@@ -293,6 +366,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             flex: 1;
             margin-left: 280px;
             padding: 20px;
+            width: 100%;
         }
 
         .admin-header {
@@ -318,6 +392,34 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             gap: 20px;
         }
 
+        .admin-search-container {
+            position: relative;
+        }
+
+        .admin-search-input {
+            padding: 10px 15px 10px 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            width: 250px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .admin-search-input:focus {
+            outline: none;
+            border-color: #4a90e2;
+        }
+
+        .admin-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: #999;
+        }
+
         .admin-avatar {
             width: 40px;
             height: 40px;
@@ -336,194 +438,152 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 30px;
             border-radius: 15px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
         }
 
         .admin-section-header {
-            margin-bottom: 25px;
-        }
-
-        .admin-section-title {
-            font-size: 22px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .admin-form-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        .admin-form-group {
-            margin-bottom: 20px;
-        }
-
-        .admin-form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .admin-form-input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-
-        .admin-form-input:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-
-        .admin-form-fullwidth {
-            grid-column: 1 / -1;
-        }
-
-        .admin-family-members {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 10px;
-        }
-
-        .admin-member-form {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 15px;
-            align-items: end;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .admin-member-form:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .admin-btn-add-member {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            height: fit-content;
-        }
-
-        .admin-btn-add-member:hover {
-            background: linear-gradient(135deg, #20c997, #28a745);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .admin-member-list {
-            margin-top: 20px;
-        }
-
-        .admin-member-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 15px;
-            background: white;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
 
-        .admin-member-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .admin-member-name {
+        .admin-section-title {
+            font-size: 18px;
             font-weight: 600;
-            color: #2c3e50;
+            color: #333;
         }
 
-        .admin-member-actions {
+        .admin-table-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-entries-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-entries-select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .admin-table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        .admin-table th, .admin-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .admin-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+        }
+
+        .admin-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .admin-status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .admin-action-buttons {
             display: flex;
             gap: 10px;
         }
 
-        .admin-btn-remove {
+        .admin-btn-action {
             background: none;
             border: none;
-            color: #dc3545;
             cursor: pointer;
-            padding: 5px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-        }
-
-        .admin-btn-remove:hover {
-            background-color: rgba(220, 53, 69, 0.1);
-        }
-
-        .admin-members-count {
-            background: #e9ecef;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: 600;
-            color: #495057;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .admin-form-actions {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .admin-btn-cancel {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .admin-btn-cancel:hover {
-            background: #5a6268;
-        }
-
-        .admin-btn-submit {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: 600;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
             transition: all 0.3s ease;
-            cursor: pointer;
         }
 
-        .admin-btn-submit:hover {
-            background: linear-gradient(135deg, #2980b9, #3498db);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        .admin-btn-edit {
+            color: #3498db;
+        }
+
+        .admin-btn-edit:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        .admin-btn-delete {
+            color: #e74c3c;
+        }
+
+        .admin-btn-delete:hover {
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        .admin-btn-print {
+            color: #17a2b8;
+        }
+
+        .admin-btn-print:hover {
+            background-color: rgba(23, 162, 184, 0.1);
+        }
+
+        .admin-action-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .admin-table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .admin-entries-info {
+            color: #6c757d;
+        }
+
+        .admin-pagination {
+            margin: 0;
+        }
+
+        .admin-page-link {
+            color: #3498db;
+            border: 1px solid #dee2e6;
+            padding: 0.5rem 0.75rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .admin-page-item.active .admin-page-link {
+            background-color: #3498db;
+            border-color: #3498db;
+            color: white;
         }
 
         .admin-mobile-menu {
@@ -537,16 +597,6 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 8px;
             padding: 10px;
             cursor: pointer;
-        }
-
-        @media (max-width: 1024px) {
-            .admin-form-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .admin-member-form {
-                grid-template-columns: 1fr;
-            }
         }
 
         @media (max-width: 768px) {
@@ -574,7 +624,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             .admin-header {
                 flex-direction: column;
                 gap: 15px;
-                text-align: center;
+            }
+
+            .admin-search-input {
+                width: 100%;
             }
         }
     </style>
@@ -619,7 +672,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <ul class="admin-submenu <?php echo $item['active'] ? 'expanded' : ''; ?>">
                         <?php foreach ($item['submenu'] as $subitem): ?>
                         <li class="admin-nav-item">
-                            <a href="<?php echo $subitem['url']; ?>" class="admin-submenu-item">
+                            <a href="<?php echo $subitem['url']; ?>" class="admin-submenu-item <?php echo isset($subitem['active']) && $subitem['active'] ? 'active' : ''; ?>">
                                 <div class="admin-submenu-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                         <circle cx="12" cy="12" r="4"/>
@@ -642,7 +695,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
                                 </svg>
                             </div>
-                            <span>Log out</span>
+                            <span>Logout</span>
                         </div>
                     </div>
                 </li>
@@ -652,73 +705,102 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Main Content -->
         <div class="admin-main-content">
             <div class="admin-header">
-                <h1 class="admin-welcome-text">Welcome, <?php echo $adminName; ?></h1>
+                <h1 class="admin-welcome-text">Welcome, <?php echo $admin_name; ?></h1>
                 <div class="admin-header-right">
+                    <div class="admin-search-container">
+                        <div class="admin-search-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                            </svg>
+                        </div>
+                        <input type="text" class="admin-search-input" placeholder="Search permit requests...">
+                    </div>
                     <div class="admin-avatar">A</div>
                 </div>
             </div>
 
             <div class="admin-dashboard-section">
                 <div class="admin-section-header">
-                    <h2 class="admin-section-title">Add Household</h2>
-                </div>
-
-                <form id="householdForm" class="admin-form-container">
-                    <!-- Household Number -->
-                    <div class="admin-form-group admin-form-fullwidth">
-                        <label class="admin-form-label">Household Number</label>
-                        <input type="text" name="hh-no" class="admin-form-input" placeholder="Enter Household Number" required>
-                    </div>
-
-                    <!-- Head of the Family -->
-                    <div class="admin-form-group admin-form-fullwidth">
-                        <label class="admin-form-label">Head of the Family</label>
-                        <input type="text" name="head" class="admin-form-input" placeholder="Enter head of the family" required>
-                    </div>
-
-                    <!-- Family Members Section -->
-                    <div class="admin-form-group admin-form-fullwidth">
-                        <label class="admin-form-label">Name of family members</label>
-                        
-                        <div class="admin-family-members">
-                            <div class="admin-member-form">
-                                <div>
-                                    <label class="admin-form-label">First Name</label>
-                                    <input type="text" name="first-name[]" class="admin-form-input" placeholder="Enter first name">
-                                </div>
-                                <div>
-                                    <label class="admin-form-label">Last Name</label>
-                                    <input type="text" name="last-name[]" class="admin-form-input" placeholder="Enter last name">
-                                </div>
-                                <button type="button" class="admin-btn-add-member">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                                    </svg>
-                                    Add
-                                </button>
-                            </div>
-
-                            <div class="admin-member-list">
-                                <!-- Sample members will be added here by JavaScript -->
-                            </div>
-
-                            <div class="admin-members-count">
-                                Number of Family Members: <span id="memberCount">0</span>
-                            </div>
+                    <h2 class="admin-section-title">List of Permit Request</h2>
+                    <div class="admin-table-controls">
+                        <div class="admin-entries-control">
+                            <span>Show</span>
+                            <select class="admin-entries-select">
+                                <option value="5" selected>5</option>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                            <span>entries</span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Form Actions -->
-                    <div class="admin-form-actions">
-                        <button type="button" class="admin-btn-cancel">Cancel</button>
-                        <button type="submit" class="admin-btn-submit">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
-                            </svg>
-                            Save Household
-                        </button>
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Permit ID</th>
+                                <th>Fullname</th>
+                                <th>Email</th>
+                                <th>Purpose</th>
+                                <th>Date Requested</th>
+                                <th>Date Issued</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($permitRequests as $request): ?>
+                            <tr>
+                                <td><?php echo $request['id']; ?></td>
+                                <td><?php echo $request['first_name'] . " " . $request['middle_name'] . " " . $request['last_name']; ?></td>
+                                <td><?php echo $request['email']; ?></td>
+                                <td><?php echo $request['purpose']; ?></td>
+                                <td><?php echo $request['date_requested']; ?></td>
+                                <td><?php echo $request['date_issued']; ?></td>
+                                <td>
+                                    <span class="admin-status-badge" style="background-color: <?php echo $statusColors[$request['status']]; ?>; color: white;">
+                                        <?php echo $request['status']; ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="admin-action-buttons">
+                                        <button class="admin-btn-action admin-btn-edit" title="Edit">
+                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="admin-btn-action admin-btn-print" title="Print">
+                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="admin-btn-action admin-btn-delete" title="Delete">
+                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="admin-table-footer">
+                    <div class="admin-entries-info">
+                        Showing 1 to <?php echo count($permitRequests); ?> of <?php echo count($permitRequests); ?> entries
                     </div>
-                </form>
+                    <nav class="admin-pagination">
+                        <ul style="display: flex; list-style: none; gap: 5px;">
+                            <li><a href="#" class="admin-page-link">Previous</a></li>
+                            <li class="admin-page-item active"><a href="#" class="admin-page-link">1</a></li>
+                            <li><a href="#" class="admin-page-link">Next</a></li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
     </div>
@@ -750,97 +832,29 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             sidebar.classList.toggle('active');
         });
 
-        // Family members management
-        const memberForm = document.querySelector('.admin-member-form');
-        const memberList = document.querySelector('.admin-member-list');
-        const memberCount = document.getElementById('memberCount');
-        const addMemberButton = document.querySelector('.admin-btn-add-member');
-        let members = [];
+        // Search functionality
+        const searchInput = document.querySelector('.admin-search-input');
+        const tableRows = document.querySelectorAll('.admin-table tbody tr');
 
-        addMemberButton.addEventListener('click', function() {
-            const firstNameInput = memberForm.querySelector('input[placeholder="Enter first name"]');
-            const lastNameInput = memberForm.querySelector('input[placeholder="Enter last name"]');
+        searchInput.addEventListener('input', function() {
+            const searchText = this.value.toLowerCase();
             
-            const firstName = firstNameInput.value.trim();
-            const lastName = lastNameInput.value.trim();
-            
-            if (firstName && lastName) {
-                // Add member to array
-                members.push({
-                    firstName: firstName,
-                    lastName: lastName,
-                    id: Date.now() // Unique ID for each member
-                });
-                
-                // Update member list
-                updateMemberList();
-                
-                // Clear inputs
-                firstNameInput.value = '';
-                lastNameInput.value = '';
-                
-                // Focus on first name input
-                firstNameInput.focus();
-            } else {
-                alert('Please enter both first and last name');
-            }
+            tableRows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                if (rowText.includes(searchText)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         });
 
-        function updateMemberList() {
-            memberList.innerHTML = '';
-            memberCount.textContent = members.length;
-            
-            members.forEach((member, index) => {
-                const memberItem = document.createElement('div');
-                memberItem.className = 'admin-member-item';
-                memberItem.innerHTML = `
-                    <div class="admin-member-info">
-                        <span class="admin-member-name">${member.firstName} ${member.lastName}</span>
-                    </div>
-                    <div class="admin-member-actions">
-                        <button type="button" class="admin-btn-remove" data-id="${member.id}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19 13H5v-2h14v2z"/>
-                            </svg>
-                        </button>
-                    </div>
-                `;
-                memberList.appendChild(memberItem);
-            });
-            
-            // Add event listeners to remove buttons
-            document.querySelectorAll('.admin-btn-remove').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const memberId = parseInt(this.getAttribute('data-id'));
-                    members = members.filter(member => member.id !== memberId);
-                    updateMemberList();
-                });
-            });
-        }
-
-        // Form submission
-        const householdForm = document.getElementById('householdForm');
+        // Entries select functionality
+        const entriesSelect = document.querySelector('.admin-entries-select');
         
-        householdForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (members.length === 0) {
-                alert('Please add at least one family member');
-                return;
-            }
-            
-            // In a real application, this would submit the form data to the server
-            alert('Household added successfully!');
-            householdForm.reset();
-            members = [];
-            updateMemberList();
-        });
-
-        // Cancel button
-        document.querySelector('.admin-btn-cancel').addEventListener('click', function() {
-            if (confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
-                window.location.href = 'households.php'; // Redirect to households list
-            }
+        entriesSelect.addEventListener('change', function() {
+            // In a real application, this would reload the table with the selected number of entries
+            console.log('Show ' + this.value + ' entries');
         });
     </script>
 </body>

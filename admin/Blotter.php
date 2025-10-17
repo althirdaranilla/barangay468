@@ -84,13 +84,13 @@ $nav_items = [
     [
         'name' => 'Documents',
         'icon' => 'documents',
-        'url' => '#',
+        'url' => 'Documents.php',
         'active' => false,
         'expandable' => true,
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'Clearance.php',
+                'url' => 'ClearanceRequest.php',
                 'icon' => 'circle'
             ],
             [
@@ -114,7 +114,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Resident Records',
-                'url' => 'ResidentRecords.php',
+                'url' => 'Residents.php',
                 'icon' => 'circle'
             ],
             [
@@ -141,7 +141,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Blotter Records',
-                'url' => 'BlotterRecords.php',
+                'url' => 'Blotter.php',
                 'icon' => 'circle',
                 'active' => true
             ]
@@ -645,6 +645,21 @@ $statusColors = [
             }
         }
     </style>
+    <script>
+        const modal = document.getElementById("myModal");
+                            
+        window.onclick = function (event) {
+            if (event.target === modal) {
+            modal.style.display = "none";
+            }
+        };
+        const openModal = (element) => {
+            element.closest('form').submit();
+        }
+        const closeModal = () => {
+            modal.style.display = "none";
+        }
+    </script>
 </head>
 <body>
     <div class="admin-container">

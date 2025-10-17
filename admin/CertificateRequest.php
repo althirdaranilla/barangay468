@@ -1,12 +1,17 @@
 <?php
 // Simulating user authentication - in a real application, this would come from session
-$isAdmin = true;
-$adminName = "Admin";
+require "../database/connection.php";
+require "../database/log_activity.php";
 
-// Sample clearance request data
-$clearanceRequests = [
+$isAdmin = true;
+$admin_name = $_SESSION['user_name'];
+$user_role = $_SESSION['user_position'];
+
+log_activity($user_role, "Viewed", "Certificate Requests", $conn);
+// Sample certificate request data
+$certificateRequests = [
     [
-        'clearance_id' => 'C1-2024-0001',
+        'certificate_id' => 'C1-2024-0001',
         'fullname' => 'Kobe Tayco',
         'email' => 'tayco@gmail.com',
         'purpose' => 'Work',
@@ -16,7 +21,7 @@ $clearanceRequests = [
         'status' => 'Printing'
     ],
     [
-        'clearance_id' => 'C1-2024-0002',
+        'certificate_id' => 'C1-2024-0002',
         'fullname' => 'Edrian Valdez',
         'email' => 'valdez@gmail.com',
         'purpose' => 'Visa',
@@ -26,7 +31,7 @@ $clearanceRequests = [
         'status' => 'Approved'
     ],
     [
-        'clearance_id' => 'C1-2024-0003',
+        'certificate_id' => 'C1-2024-0003',
         'fullname' => 'Althief Aranilla',
         'email' => 'aranilla@gmail.com',
         'purpose' => 'Work',
@@ -36,7 +41,7 @@ $clearanceRequests = [
         'status' => 'Rejected'
     ],
     [
-        'clearance_id' => 'C1-2024-0004',
+        'certificate_id' => 'C1-2024-0004',
         'fullname' => 'Christian Somera',
         'email' => 'somera@gmail.com',
         'purpose' => 'Work',
@@ -46,7 +51,7 @@ $clearanceRequests = [
         'status' => 'Approved'
     ],
     [
-        'clearance_id' => 'C1-2024-0005',
+        'certificate_id' => 'C1-2024-0005',
         'fullname' => 'Mark de Guzman',
         'email' => 'mark@gmail.com',
         'purpose' => 'Work',
@@ -56,7 +61,16 @@ $clearanceRequests = [
         'status' => 'Approved'
     ]
 ];
+$sql_certificate = "SELECT * FROM certificate_requests ORDER BY date_requested DESC";
+$result_certificate = $conn->query($sql_certificate);
+if ($result_certificate === false) {
+    die("Error retrieving announcements: " . $conn->error);
+}
 
+$certificateRequests = [];
+while ($row = $result_certificate->fetch_assoc()) {
+    $certificateRequests[] = $row;
+}
 // Navigation menu items
 $nav_items = [
     [
@@ -89,13 +103,13 @@ $nav_items = [
     [
         'name' => 'Documents',
         'icon' => 'documents',
-        'url' => '#',
+        'url' => 'Documents.php',
         'active' => true,
         'expandable' => true,
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'Clearance.php',
+                'url' => 'ClearanceRequest.php',
                 'icon' => 'circle',
                 'active' => true
             ],
@@ -120,7 +134,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Resident Records',
-                'url' => 'ResidentRecords.php',
+                'url' => 'Residents.php',
                 'icon' => 'circle'
             ],
             [
@@ -147,7 +161,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Blotter Records',
-                'url' => 'BlotterRecords.php',
+                'url' => 'Blotter.php',
                 'icon' => 'circle'
             ]
         ]
@@ -181,7 +195,7 @@ $nav_items = [
     ]
 ];
 
-// Status colors
+// Status colorsiuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu
 $statusColors = [
     'Printing' => '#17a2b8',
     'Approved' => '#28a745',
@@ -195,7 +209,7 @@ $statusColors = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Manage Clearance Requests</title>
+    <title>Admin - Manage Certificate Requests</title>
     <style>
         * {
             margin: 0;
@@ -352,6 +366,7 @@ $statusColors = [
             flex: 1;
             margin-left: 280px;
             padding: 20px;
+            width: 100%;
         }
 
         .admin-header {
@@ -690,7 +705,7 @@ $statusColors = [
         <!-- Main Content -->
         <div class="admin-main-content">
             <div class="admin-header">
-                <h1 class="admin-welcome-text">Welcome, <?php echo $adminName; ?></h1>
+                <h1 class="admin-welcome-text">Welcome, <?php echo $admin_name; ?></h1>
                 <div class="admin-header-right">
                     <div class="admin-search-container">
                         <div class="admin-search-icon">
@@ -698,7 +713,7 @@ $statusColors = [
                                 <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                             </svg>
                         </div>
-                        <input type="text" class="admin-search-input" placeholder="Search clearance requests...">
+                        <input type="text" class="admin-search-input" placeholder="Search certificate requests...">
                     </div>
                     <div class="admin-avatar">A</div>
                 </div>
@@ -706,7 +721,7 @@ $statusColors = [
 
             <div class="admin-dashboard-section">
                 <div class="admin-section-header">
-                    <h2 class="admin-section-title">List of Clearance Request</h2>
+                    <h2 class="admin-section-title">List of Certificate Request</h2>
                     <div class="admin-table-controls">
                         <div class="admin-entries-control">
                             <span>Show</span>
@@ -725,27 +740,25 @@ $statusColors = [
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Clearance ID</th>
+                                <th>Certificate ID</th>
                                 <th>Fullname</th>
                                 <th>Email</th>
                                 <th>Purpose</th>
                                 <th>Date Requested</th>
                                 <th>Date Issued</th>
-                                <th>Validity</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($clearanceRequests as $request): ?>
+                            <?php foreach ($certificateRequests as $request): ?>
                             <tr>
-                                <td><?php echo $request['clearance_id']; ?></td>
-                                <td><?php echo $request['fullname']; ?></td>
+                                <td><?php echo $request['id']; ?></td>
+                                <td><?php echo $request['first_name'] . " " . $request['middle_name'] . " " . $request['last_name']; ?></td>
                                 <td><?php echo $request['email']; ?></td>
                                 <td><?php echo $request['purpose']; ?></td>
                                 <td><?php echo $request['date_requested']; ?></td>
                                 <td><?php echo $request['date_issued']; ?></td>
-                                <td><?php echo $request['validity']; ?></td>
                                 <td>
                                     <span class="admin-status-badge" style="background-color: <?php echo $statusColors[$request['status']]; ?>; color: white;">
                                         <?php echo $request['status']; ?>
@@ -778,7 +791,7 @@ $statusColors = [
 
                 <div class="admin-table-footer">
                     <div class="admin-entries-info">
-                        Showing 1 to <?php echo count($clearanceRequests); ?> of <?php echo count($clearanceRequests); ?> entries
+                        Showing 1 to <?php echo count($certificateRequests); ?> of <?php echo count($certificateRequests); ?> entries
                     </div>
                     <nav class="admin-pagination">
                         <ul style="display: flex; list-style: none; gap: 5px;">

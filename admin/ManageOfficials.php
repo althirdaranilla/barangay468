@@ -25,8 +25,8 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $_SESSION['online'] = true;
 } catch (Exception $e) {
-    $error = $e->getMessage();
-    $err_str = (string) $error;
+    //$error = $e->getMessage();
+    //$err_str = (string) $error;
     echo "<script>";
     echo "console.log('Connection to database failed');";
     echo "console.log('Connecting to local database.');";
@@ -109,13 +109,13 @@ $nav_items = [
     [
         'name' => 'Documents',
         'icon' => 'documents',
-        'url' => '#',
+        'url' => 'Documents.php',
         'active' => false,
         'expandable' => true,
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'Clearance.php',
+                'url' => 'ClearanceRequest.php',
                 'icon' => 'circle'
             ],
             [
@@ -139,7 +139,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Resident Records',
-                'url' => 'ResidentRecords.php',
+                'url' => 'Residents.php',
                 'icon' => 'circle'
             ],
             [
@@ -166,7 +166,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Blotter Records',
-                'url' => 'BlotterRecords.php',
+                'url' => 'Blotter.php',
                 'icon' => 'circle'
             ]
         ]
@@ -763,13 +763,13 @@ function getIcon($icon_name) {
                     ?>
                 </div>
             <?php endif; ?>
-            
+            <!-- Display messages 
             <?php if (isset($error)): ?>
                 <div class="alert alert-danger">
                     <?php echo $error; ?>
                 </div>
             <?php endif; ?>
-
+            -->
             <div class="section-header">
                 <div class="section-title">Barangay Officials</div>
                 <button class="btn-add" onclick="location.href='AddOfficial.php'">
@@ -807,7 +807,7 @@ function getIcon($icon_name) {
                                                 <?php echo getIcon('edit'); ?>
                                             </div>
                                         </button>
-                                        <button class="btn-action btn-delete" onclick="confirmDelete(<?php echo $official['id']; ?>, '<?php echo htmlspecialchars($official['fullname']); ?>')">
+                                        <button class="btn-action btn-delete" onclick="confirmDelete(<?php echo $official['id']; ?>, '<?php echo htmlspecialchars($official['first_name'] . " " . $official['first_name']); ?>')">
                                             <div class="action-icon">
                                                 <?php echo getIcon('delete'); ?>
                                             </div>
