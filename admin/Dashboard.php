@@ -280,16 +280,6 @@ function formatNumber($number) {
 
                 <div class="stat-card">
                     <div class="stat-header">
-                        <div class="stat-icon families-icon">
-                            <?php echo getIcon('users'); ?>
-                        </div>
-                        <div class="stat-title">Families</div>
-                    </div>
-                    <div class="stat-number"><?php echo formatNumber($dashboard_data['families']); ?></div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-header">
                         <div class="stat-icon households-icon">
                             <?php echo getIcon('households'); ?>
                         </div>
