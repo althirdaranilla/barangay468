@@ -1,9 +1,11 @@
 <?php
+require "../database/connection.php";
+require "../database/log_activity.php";
 require "./components/getIcon.php";
 
 $isAdmin = true;
 $adminName = "Admin";
-
+log_activity($_SESSION['user_position'], "Viewed", "Add Clearance", $conn);
 // Navigation menu items
 $nav_items = [
     [

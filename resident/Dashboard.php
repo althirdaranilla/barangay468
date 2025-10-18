@@ -17,8 +17,16 @@ $password = '';
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+
+} catch (PDOException $e) {
+    $host = "127.0.0.1";
+    $dbname = "barangay468_db";
+    $username = "root";
+    $password = "";
+    //$error = 'Database connection failed: ' . $e->getMessage();
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
 }
 
 // Get current page
