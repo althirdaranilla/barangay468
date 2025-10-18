@@ -2,10 +2,12 @@
 session_start();
 
 // Database configuration
-$host = "127.0.0.1";
-$dbname = "barangay468_db";
-$username = "root";
-$password = "";
+$host = '127.0.0.1';
+$dbname = 'u539413584_db';
+$username = 'u539413584_admin';
+$password = 'Q5b&kOh+2';
+
+
 // Initialize variables
 $error = '';
 $success = '';
@@ -32,12 +34,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            
+
+        } catch (PDOException $e) {
+            $host = "127.0.0.1";
+            $dbname = "barangay468_db";
+            $username = "root";
+            $password = "";
+            //$error = 'Database connection failed: ' . $e->getMessage();
+            $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        }
+        try{
             // Check admin_users first
             $stmt_admin = $pdo->prepare("SELECT id, email, password, first_name, last_name, position FROM admin_users WHERE email = ?");
             $stmt_admin->execute([$email]);
             $user_admin = $stmt_admin->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($user_admin && password_verify($password_input, $user_admin['password'])) {
                 $_SESSION['user_type'] = 'official';
                 $_SESSION['user_id'] = $user_admin['id'];
@@ -50,16 +63,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $expires = time() + (30 * 24 * 60 * 60); // 30 days
                     setcookie('remember_token', $token, $expires, '/', '', false, true);
                 }
-                
+
                 header('Location: admin/Dashboard.php');
                 exit();
             }
-            
+
             // If not found in admin, check residents
             $stmt_resident = $pdo->prepare("SELECT id, email, password, first_name, last_name FROM residents_users WHERE email = ?");
             $stmt_resident->execute([$email]);
             $user_resident = $stmt_resident->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($user_resident && password_verify($password_input, $user_resident['password'])) {
                 $_SESSION['user_type'] = 'resident';
                 $_SESSION['user_id'] = $user_resident['id'];
@@ -71,15 +84,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $expires = time() + (30 * 24 * 60 * 60); // 30 days
                     setcookie('remember_token', $token, $expires, '/', '', false, true);
                 }
-                
+
                 header('Location: resident/Dashboard.php');
                 exit();
             }
-            
+
             $error = 'Invalid email or password.';
-            
         } catch (PDOException $e) {
-            $error = 'Database connection failed: ' . $e->getMessage();
+
         }
     }
 }
