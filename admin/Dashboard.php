@@ -18,7 +18,7 @@ $households = mysqli_fetch_assoc($result_residents)['total'];
 echo "<script>console.log('" . $residents ."')</script>";
 $dashboard_data = [
     'residents' => $residents,
-    'families' => 30,
+    'families' => $households,
     'households' => $households,
     'admin_name' => isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Admin',
     'current_date' => date('Y-m-d'),
