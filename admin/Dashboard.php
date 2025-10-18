@@ -2,9 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['admin_logged_in'])) {
-    error_log('Redirecting: admin_logged_in not set');
-} elseif ($_SESSION['admin_logged_in'] !== true) {
-    error_log('Redirecting: admin_logged_in not true');
+    
 }
 
 // Sample data - in a real application, this would come from a database

@@ -1,5 +1,6 @@
 <?php
 // Simulating user authentication - in a real application, this would come from session
+require "../database/connection.php";
 $isAdmin = true;
 $adminName = "Admin";
 
@@ -36,7 +37,16 @@ $households = [
         'head_of_household' => 'Sofia Martinez'
     ]
 ];
+$sql_households = "SELECT * FROM households ORDER BY household_no ASC";
+$result_households = $conn->query($sql_households);
+if ($result_households === false) {
+    die("Error retrieving announcements: " . $conn->error);
+}
 
+$households = [];
+while ($row = $result_households->fetch_assoc()) {
+    $households[] = $row;
+}
 // Navigation menu items
 $nav_items = [
     [
@@ -159,6 +169,19 @@ $nav_items = [
         'submenu' => []
     ]
 ];
+
+if($_SERVER['REQUEST_METHOD'] === 'POST'){
+    if(isset($_POST['view'])){
+        echo "
+            <div id='myModal' class='modal' style='display:block'>
+                <div class='modal-content'>
+                    <span class='close' onclick='closeModal()'>&times;</span>
+                    
+                </div>
+            </div>
+        ";
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -730,24 +753,25 @@ $nav_items = [
                             <tr>
                                 <td><?php echo $index + 1; ?></td>
                                 <td><?php echo $household['number']; ?></td>
-                                <td><?php echo $household['head_of_household']; ?></td>
+                                <td><?php echo $household['family_head']; ?></td>
                                 <td><?php echo $household['address']; ?></td>
                                 <td><?php echo $household['members_no']; ?></td>
                                 <td>
                                     <form method="POST">
                                         <input type="hidden" name="number" value="<?php $household['number'] ?>" />
+                                        <input type="hidden" name="members" value="<?php $household['members'] ?>" />
                                         <div class="admin-action-buttons">
-                                            <button class="admin-btn-action admin-btn-view" title="View Details">
+                                            <button class="admin-btn-action admin-btn-view" title="View Details" type="submit" name="view">
                                                 <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                                                 </svg>
                                             </button>
-                                            <button class="admin-btn-action admin-btn-edit" title="Edit">
+                                            <button class="admin-btn-action admin-btn-edit" title="Edit" type="submit" name="edit">
                                                 <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                                                 </svg>
                                             </button>
-                                            <button class="admin-btn-action admin-btn-delete" title="Delete">
+                                            <button class="admin-btn-action admin-btn-delete" title="Delete" type="submit" name="delete">
                                                 <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                                                 </svg>
@@ -854,6 +878,21 @@ $nav_items = [
         document.querySelector('.admin-btn-add').addEventListener('click', function() {
             window.location.href = 'AddHousehold.php';
         });
+
+        const modal = document.getElementById("myModal");
+
+        const openModal = () => {
+            modal.style.display = "block";
+        }
+        const closeModal = () => {
+            modal.style.display = "none";
+        }
+        window.addEventListener("click", function(event) {
+            if (event.target !== modal) {
+                closeModal();
+            }
+        });
+
     </script>
 </body>
 </html>
