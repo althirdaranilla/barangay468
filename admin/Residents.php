@@ -1,13 +1,13 @@
 <?php
 session_start();
 require "./components/getIcon.php";
+require "../database/connection.php";
 if (!$_SESSION['is_admin']) {
     header("Location: ../login.php");
     exit();
 }
 
 // Database connection
-$conn = mysqli_connect('localhost', 'root', '', 'barangay468_db');
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
