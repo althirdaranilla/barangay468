@@ -10,13 +10,17 @@ if (!isset($_SESSION['is_admin'])) {
 
 // Sample data - in a real application, this would come from a database
 $result_residents = mysqli_query($conn, "SELECT count(*) as total from residents");
-$data = mysqli_fetch_assoc($result_residents)['total'];
-echo "<script>console.log('" . $data ."')</script>";
+$residents = mysqli_fetch_assoc($result_residents)['total'];
+
+$result_residents = mysqli_query($conn, "SELECT count(*) as total from households");
+$households = mysqli_fetch_assoc($result_residents)['total'];
+
+echo "<script>console.log('" . $residents ."')</script>";
 $dashboard_data = [
-    'residents' => 200,
+    'residents' => $residents,
     'families' => 30,
-    'households' => 80,
-    'admin_name' => isset($_SESSION['admin_name']) ? $_SESSION['admin_name'] : 'Admin',
+    'households' => $households,
+    'admin_name' => isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Admin',
     'current_date' => date('Y-m-d'),
     'current_time' => date('H:i:s')
 ];
