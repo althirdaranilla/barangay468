@@ -1,12 +1,15 @@
 <?php
 session_start();
 require "./components/getIcon.php";
+require "../database/connection.php";
+require "../database/log_activity.php";
 
-if (!isset($_SESSION['admin_logged_in'])) {
+if (!isset($_SESSION['is_admin'])) {
     
 }
 
 // Sample data - in a real application, this would come from a database
+
 $dashboard_data = [
     'residents' => 200,
     'families' => 30,

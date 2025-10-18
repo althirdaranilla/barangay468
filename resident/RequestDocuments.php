@@ -253,6 +253,7 @@ $user_name = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'User';
                           <label>Type of Certificate:</label>
                           <select name="certificate_type" required>
                               <option value="" disabled selected>Select an option</option>
+                              <option value="Certificate of Good Moral Character">Certificate of Good Moral Character</option>
                               <option value="Residency Certificate">Residency Certificate</option>
                               <option value="Indigency Certificate">Indigency Certificate</option>
                               <option value="Employment Certificate">Employment Certificate</option>
