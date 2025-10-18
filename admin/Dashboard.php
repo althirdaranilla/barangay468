@@ -5,11 +5,13 @@ require "../database/connection.php";
 require "../database/log_activity.php";
 
 if (!isset($_SESSION['is_admin'])) {
-    
+
 }
 
 // Sample data - in a real application, this would come from a database
-
+$result_residents = mysqli_query($conn, "SELECT count(*) as total from residents");
+$data = mysqli_fetch_assoc($result_residents)['total'];
+echo "<script>console.log('" . $data ."')</script>";
 $dashboard_data = [
     'residents' => 200,
     'families' => 30,

@@ -213,7 +213,7 @@ if ($_POST) {
             </form>
 
             <div class="signin-link">
-                Already have an account? <a href="login.php">Sign In</a>
+                Already have an account? <a href="index.php">Sign In</a>
             </div>
         </div>
     </div>
