@@ -47,11 +47,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         try{
             // Check admin_users first
-            $stmt_admin = $pdo->prepare("SELECT id, email, password, first_name, last_name, position FROM admin_users WHERE email = ?");
+            $stmt_admin = $pdo->prepare("SELECT id, email, password, first_name, last_name, position, status FROM admin_users WHERE email = ?");
             $stmt_admin->execute([$email]);
             $user_admin = $stmt_admin->fetch(PDO::FETCH_ASSOC);
 
             if ($user_admin && password_verify($password_input, $user_admin['password'])) {
+                if($user_admin['status'] != "active"){
+                    header('Location: index.php');
+                    exit("Wait for account approval");
+                }
                 $_SESSION['user_type'] = 'official';
                 $_SESSION['user_id'] = $user_admin['id'];
                 $_SESSION['user_email'] = $user_admin['email'];

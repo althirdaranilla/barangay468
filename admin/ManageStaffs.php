@@ -148,7 +148,7 @@ $nav_items = [
     [
         'name' => 'Announcements',
         'icon' => 'announcements',
-        'url' => 'announcements.php',
+        'url' => 'Announcement.php',
         'active' => false,
         'expandable' => false,
         'submenu' => []

@@ -76,7 +76,7 @@ if ($_POST) {
                 // Insert new admin user
                 $stmt = $pdo->prepare("
                     INSERT INTO admin_users (first_name, last_name, email, position, password, created_at, status) 
-                    VALUES (?, ?, ?, ?, ?, NOW(), 'active')
+                    VALUES (?, ?, ?, ?, ?, NOW(), 'inactive')
                 ");
                 
                 $result = $stmt->execute([
