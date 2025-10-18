@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
-    header('Location: ../login.php'); 
-    exit;
+if (!$_SESSION['is_admin']) {
+    header("Location: ../login.php");
+    exit();
 }
 
 // Database connection
@@ -286,7 +286,7 @@ function getIcon($icon_name) {
                     </select> 
                     entries
                 </div>
-                <button class="add-resident-btn" onclick="window.location.href='/add_resident.php'">+ Add Resident</button>
+                <button class="add-resident-btn" onclick="window.location.href='./AddResidents.php'">+ Add Resident</button>
             </div>
             <table class="residents-table" id="residentsTable">
                 <thead>

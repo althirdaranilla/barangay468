@@ -79,7 +79,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Resident Records',
-                'url' => 'AddResidents.php',
+                'url' => 'Residents.php',
                 'icon' => 'circle'
             ],
             [

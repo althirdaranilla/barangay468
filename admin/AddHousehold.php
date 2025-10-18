@@ -1,5 +1,8 @@
 <?php
 // Simulating user authentication - in a real application, this would come from session
+require "../database/connection.php";
+require "../database/log_activity.php";
+
 $isAdmin = true;
 $adminName = "Admin";
 
@@ -125,8 +128,37 @@ $nav_items = [
         'submenu' => []
     ]
 ];
-
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $stmt = $conn->prepare("INSERT INTO households (number) VALUES (NULL) ");
+    if ($stmt->execute()) {
+        $last_id = $conn->insert_id;
+        $hex_id = sprintf('%03X', $last_id);
+        $id = "HH-" . $hex_id;
+        $hh_no = $_POST["hh-no"];
+        $family_head = $_POST["head"];
+        $address = $_POST['address'];
+
+        $members = [];
+        foreach($_POST["name"] as $name){
+            array_push($members, $name);
+        }
+        $members_json = implode(",", $members);
+        echo "<script>console.log('". $members_json . ".');</script>";
+        $members_count = sizeof($members);
+
+        $stmt = $conn->prepare("UPDATE households SET id=?, household_no=?, family_head=?, address=?, members=?, members_no=? WHERE number=?");
+        $stmt->bind_param("ssssss", $id, $hh_no, $family_head, $address, $members_json, $members_count, $last_id);
+        if ($stmt->execute()) {
+            echo "<script>console.log('Announcement created.');</script>";
+            log_activity($user_role, "Added", "a Household", $conn);
+        }
+        $stmt->close();
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        die;
+    } else {
+        $stmt->close();
+        echo "<script>console.log('Failed to create announcement.');</script>";
+    }
 
 }
 
@@ -663,7 +695,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h2 class="admin-section-title">Add Household</h2>
                 </div>
 
-                <form id="householdForm" class="admin-form-container">
+                <form id="householdForm" method="POST" class="admin-form-container">
                     <!-- Household Number -->
                     <div class="admin-form-group admin-form-fullwidth">
                         <label class="admin-form-label">Household Number</label>
@@ -676,6 +708,11 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="text" name="head" class="admin-form-input" placeholder="Enter head of the family" required>
                     </div>
 
+                    <div class="admin-form-group admin-form-fullwidth">
+                        <label class="admin-form-label">Address</label>
+                        <input type="text" name="address" class="admin-form-input" placeholder="Enter the address of the household" required>
+                    </div>
+
                     <!-- Family Members Section -->
                     <div class="admin-form-group admin-form-fullwidth">
                         <label class="admin-form-label">Name of family members</label>
@@ -684,11 +721,11 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="admin-member-form">
                                 <div>
                                     <label class="admin-form-label">First Name</label>
-                                    <input type="text" name="first-name[]" class="admin-form-input" placeholder="Enter first name">
+                                    <input type="text" class="admin-form-input" placeholder="Enter first name">
                                 </div>
                                 <div>
                                     <label class="admin-form-label">Last Name</label>
-                                    <input type="text" name="last-name[]" class="admin-form-input" placeholder="Enter last name">
+                                    <input type="text" class="admin-form-input" placeholder="Enter last name">
                                 </div>
                                 <button type="button" class="admin-btn-add-member">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -711,7 +748,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <!-- Form Actions -->
                     <div class="admin-form-actions">
                         <button type="button" class="admin-btn-cancel">Cancel</button>
-                        <button type="submit" class="admin-btn-submit">
+                        <button type="submit" id="save-hh" class="admin-btn-submit">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
                             </svg>
@@ -804,6 +841,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </svg>
                         </button>
                     </div>
+                    <input type="hidden" value="${member.firstName + ' ' + member.lastName}" name="name[]" />
                 `;
                 memberList.appendChild(memberItem);
             });
@@ -819,23 +857,31 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Form submission
+        /*
         const householdForm = document.getElementById('householdForm');
         
         householdForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+            
             
             if (members.length === 0) {
                 alert('Please add at least one family member');
                 return;
             }
-            
+            householdForm.submit();
             // In a real application, this would submit the form data to the server
             alert('Household added successfully!');
             householdForm.reset();
             members = [];
             updateMemberList();
+        });*/
+        const submitBtn = document.getElementById('save-hh');
+        submitBtn.addEventListener('click', function(e) {
+            if (members.length === 0) {
+                alert('Please add at least one family member');
+                e.preventDefault();
+                return;
+            }
         });
-
         // Cancel button
         document.querySelector('.admin-btn-cancel').addEventListener('click', function() {
             if (confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
