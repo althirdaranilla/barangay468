@@ -17,6 +17,19 @@ $staffMembers = [];
 while ($row = $result_staff->fetch_assoc()) {
     $staffMembers[] = $row;
 }
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+    if(isset($_POST['delete'])){
+        $id = $_POST['id'];
+        $stmt = $conn->prepare("DELETE FROM staff WHERE number=?");
+        $stmt->bind_param("s", $id);
+        if ($stmt->execute()) {
+            echo "<script>console.log('Staff Deleted.');</script>";
+        } else {
+            echo "<script>console.log('Failed to delete staff.');</script>";
+        }
+    }
+}
+
 // Sample staff data
 
 // Navigation menu items
@@ -703,16 +716,15 @@ $nav_items = [
                                 </td>
                                 <td>
                                     <div class="admin-action-buttons">
-                                        <button class="admin-btn-action admin-btn-edit" title="Edit">
-                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                                            </svg>
-                                        </button>
-                                        <button class="admin-btn-action admin-btn-delete" title="Delete">
-                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                            </svg>
-                                        </button>
+                                        <form method="POST">
+                                            <input type="hidden" name="id" value="<?php echo $staff['number'] ?>" />
+                                            <button class="admin-btn-action admin-btn-delete" title="Delete" type="submit" name="delete">
+                                                <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                        
                                     </div>
                                 </td>
                             </tr>
