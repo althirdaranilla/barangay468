@@ -142,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="password">Password:</label>
                         <div class="password-container">
                             <input type="password" id="password" name="password" required>
-                            <span class="password-toggle" onclick="togglePassword()">
+                            <span class="password-toggle" onclick="togglePassword('password')">
                                 <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m-6.364-9.364L18 18"/>
                                 </svg>
@@ -172,6 +172,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <script src="js/script.js"></script>
+    <script src="./js/script.js"></script>
 </body>
 </html>
