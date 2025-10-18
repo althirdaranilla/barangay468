@@ -1,5 +1,6 @@
 <?php
 // Simulating user authentication - in a real application, this would come from session
+require "./components/getIcon.php";
 $isAdmin = true;
 $adminName = "Admin";
 
@@ -622,9 +623,7 @@ $nav_items = [
                     <div class="admin-nav-link <?php echo $item['expandable'] ? 'expandable' : ''; ?> <?php echo $item['active'] ? 'active' : ''; ?>">
                         <div class="admin-nav-link-content">
                             <div class="admin-nav-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                                </svg>
+                                <?php echo getIcon($item['icon']); ?>
                             </div>
                             <span><?php echo $item['name']; ?></span>
                         </div>

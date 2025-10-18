@@ -2,6 +2,7 @@
 // Simulating user authentication - in a real application, this would come from session
 require "../database/connection.php";
 require "../database/log_activity.php";
+require "./components/getIcon.php";
 
 $isAdmin = true;
 $admin_name = $_SESSION['user_name'];
@@ -76,7 +77,7 @@ $nav_items = [
     [
         'name' => 'Dashboard',
         'icon' => 'dashboard',
-        'url' => 'AdminDashboard.php',
+        'url' => 'Dashboard.php',
         'active' => false,
         'expandable' => false,
         'submenu' => []
@@ -90,12 +91,12 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Officials',
-                'url' => '../admin/ManageOfficials.php',
+                'url' => 'ManageOfficials.php',
                 'icon' => 'circle'
             ],
             [
                 'name' => 'Manage Staffs',
-                'url' => 'manage-staffs.php',
+                'url' => 'ManageStaffs.php',
                 'icon' => 'circle'
             ]
         ]
@@ -147,7 +148,7 @@ $nav_items = [
     [
         'name' => 'Households',
         'icon' => 'households',
-        'url' => '#',
+        'url' => 'Households.php',
         'active' => false,
         'expandable' => false,
         'submenu' => []
@@ -188,7 +189,7 @@ $nav_items = [
     [
         'name' => 'Announcements',
         'icon' => 'announcements',
-        'url' => '#',
+        'url' => 'Announcement.php',
         'active' => false,
         'expandable' => false,
         'submenu' => []
@@ -653,9 +654,7 @@ $statusColors = [
                     <div class="admin-nav-link <?php echo $item['expandable'] ? 'expandable' : ''; ?> <?php echo $item['active'] ? 'active' : ''; ?>">
                         <div class="admin-nav-link-content">
                             <div class="admin-nav-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                                </svg>
+                                <?php echo getIcon($item['icon']); ?>
                             </div>
                             <span><?php echo $item['name']; ?></span>
                         </div>
@@ -765,9 +764,14 @@ $statusColors = [
                                     </span>                             </td>
                                 <td>
                                     <div class="admin-action-buttons">
-                                        <button class="admin-btn-action admin-btn-edit" title="Edit">
-                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                        <button class="admin-btn-action admin-btn-edit" title="Approve">
+                                            <svg class="admin-action-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" d="M5 11.917 9.724 16.5 19 7.5"/>
+                                            </svg>
+                                        </button>
+                                        <button class="admin-btn-action admin-btn-edit" title="Reject">
+                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 24 24">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
                                             </svg>
                                         </button>
                                         <button class="admin-btn-action admin-btn-print" title="Print">

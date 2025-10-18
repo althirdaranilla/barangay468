@@ -1,5 +1,6 @@
 <?php
 require "../database/connection.php";
+require "./components/getIcon.php";
 $adminName = "Admin";
 // Navigation menu items
 $nav_items = [
@@ -76,7 +77,7 @@ $nav_items = [
     [
         'name' => 'Households',
         'icon' => 'households',
-        'url' => '#',
+        'url' => 'Households.php',
         'active' => false,
         'expandable' => false,
         'submenu' => []
@@ -117,7 +118,7 @@ $nav_items = [
     [
         'name' => 'Announcements',
         'icon' => 'announcements',
-        'url' => '#',
+        'url' => 'Announcement.php',
         'active' => false,
         'expandable' => false,
         'submenu' => []

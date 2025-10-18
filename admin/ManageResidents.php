@@ -2,6 +2,7 @@
 session_start();
 require "../database/connection.php";
 require "../database/log_activity.php";
+require "./components/getIcon.php";
 // Check if admin is logged in
 if (!$_SESSION['is_admin']) {
     header("Location: ../login.php");
@@ -27,7 +28,7 @@ $nav_items = [
     [
         'name' => 'Dashboard',
         'icon' => 'dashboard',
-        'url' => 'AdminDashboard.php',
+        'url' => 'Dashboard.php',
         'active' => false,
         'expandable' => false,
         'submenu' => []
@@ -46,7 +47,7 @@ $nav_items = [
             ],
             [
                 'name' => 'Manage Staffs',
-                'url' => 'manage-staffs.php',
+                'url' => 'ManageStaffs.php',
                 'icon' => 'circle'
             ]
         ]

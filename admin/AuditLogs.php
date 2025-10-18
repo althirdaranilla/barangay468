@@ -1,6 +1,7 @@
 <?php
 require "../database/connection.php";
 require "../database/log_activity.php";
+require "./components/getIcon.php";
 
 // Simulating user authentication - in a real application, this would come from session
 $isAdmin = true;
@@ -83,7 +84,7 @@ $nav_items = [
     [
         'name' => 'Dashboard',
         'icon' => 'dashboard',
-        'url' => 'AdminDashboard.php',
+        'url' => 'Dashboard.php',
         'active' => false,
         'expandable' => false,
         'submenu' => []
@@ -97,12 +98,12 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Officials',
-                'url' => '../admin/ManageOfficials.php',
+                'url' => 'ManageOfficials.php',
                 'icon' => 'circle'
             ],
             [
                 'name' => 'Manage Staffs',
-                'url' => 'manage-staffs.php',
+                'url' => 'ManageStaffs.php',
                 'icon' => 'circle'
             ]
         ]
@@ -153,7 +154,7 @@ $nav_items = [
     [
         'name' => 'Households',
         'icon' => 'households',
-        'url' => '#',
+        'url' => 'Households.php',
         'active' => false,
         'expandable' => false,
         'submenu' => []
@@ -195,7 +196,7 @@ $nav_items = [
     [
         'name' => 'Announcements',
         'icon' => 'announcements',
-        'url' => '#',
+        'url' => 'Announcement.php',
         'active' => false,
         'expandable' => false,
         'submenu' => []
@@ -666,9 +667,7 @@ $actionColors = [
                     <div class="admin-nav-link <?php echo $item['expandable'] ? 'expandable' : ''; ?> <?php echo $item['active'] ? 'active' : ''; ?>">
                         <div class="admin-nav-link-content">
                             <div class="admin-nav-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                                </svg>
+                                <?php echo getIcon($item['icon']); ?>
                             </div>
                             <span><?php echo $item['name']; ?></span>
                         </div>
