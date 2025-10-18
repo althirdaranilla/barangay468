@@ -1,42 +1,23 @@
 <?php
 // Simulating user authentication - in a real application, this would come from session
+require "../database/connection.php";
+require "../database/log_activity.php";
 require "./components/getIcon.php";
+
 $isAdmin = true;
 $adminName = "Admin";
 
+$sql_staff = "SELECT * FROM staff ORDER BY number DESC";
+$result_staff = $conn->query($sql_staff);
+if ($result_staff === false) {
+    die("Error retrieving announcements: " . $conn->error);
+}
+
+$staffMembers = [];
+while ($row = $result_staff->fetch_assoc()) {
+    $staffMembers[] = $row;
+}
 // Sample staff data
-$staffMembers = [
-    [
-        'fullname' => 'Kobe Tayco',
-        'staff_id' => '748-2024-0001',
-        'role' => 'Tanod',
-        'status' => 'Active'
-    ],
-    [
-        'fullname' => 'Edrian Valdez',
-        'staff_id' => '748-2024-0002',
-        'role' => 'Tanod',
-        'status' => 'Active'
-    ],
-    [
-        'fullname' => 'Athind Aranilla',
-        'staff_id' => '748-2024-0003',
-        'role' => 'Street Sweeper',
-        'status' => 'Active'
-    ],
-    [
-        'fullname' => 'Christian Somera',
-        'staff_id' => '748-2024-0004',
-        'role' => 'Street Sweeper',
-        'status' => 'Active'
-    ],
-    [
-        'fullname' => 'Mark de Guzman',
-        'staff_id' => '748-2024-0005',
-        'role' => 'Street Sweeper',
-        'status' => 'Active'
-    ]
-];
 
 // Navigation menu items
 $nav_items = [
@@ -690,12 +671,14 @@ $nav_items = [
             <div class="admin-dashboard-section">
                 <div class="admin-section-header">
                     <h2 class="admin-section-title">Manage Staff</h2>
-                    <button class="admin-btn-add">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                        </svg>
-                        Add New Staff
-                    </button>
+                    <a href="AddStaff.php">
+                        <button class="admin-btn-add">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                            Add New Staff
+                        </button>
+                    </a>
                 </div>
 
                 <div class="admin-table-container">
@@ -712,8 +695,8 @@ $nav_items = [
                         <tbody>
                             <?php foreach ($staffMembers as $staff): ?>
                             <tr>
-                                <td><?php echo $staff['fullname']; ?></td>
-                                <td><?php echo $staff['staff_id']; ?></td>
+                                <td><?php echo $staff['full_name']; ?></td>
+                                <td><?php echo $staff['id']; ?></td>
                                 <td><?php echo $staff['role']; ?></td>
                                 <td>
                                     <span class="admin-status-badge admin-status-active"><?php echo $staff['status']; ?></span>
