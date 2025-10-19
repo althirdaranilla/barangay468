@@ -13,7 +13,7 @@ if (!$conn) {
 }
 
 // Fetch residents data
-$sql = "SELECT * FROM residents ORDER BY fullname ASC";
+$sql = "SELECT * FROM admin_users ORDER BY id ASC";
 $result = mysqli_query($conn, $sql);
 
 // Navigation menu items with dropdown structure
@@ -147,17 +147,37 @@ $nav_items = [
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Resident Records</title>
     <link rel="stylesheet" href="../css/admin.css">
+    <style>
+        .admin-btn-action {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .admin-action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
 </head>
+
 <body>
     <!-- Mobile Menu Button -->
     <button class="mobile-menu" onclick="toggleSidebar()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
         </svg>
     </button>
 
@@ -184,43 +204,44 @@ $nav_items = [
         </div>
 
         <ul class="nav-menu">
-            <?php foreach($nav_items as $index => $item): ?>
-            <li class="nav-item">
-                <?php if($item['expandable'] && !empty($item['submenu'])): ?>
-                    <div class="nav-link <?php echo $item['active'] ? 'active' : ''; ?> expandable <?php echo isset($item['expanded']) && $item['expanded'] ? 'expanded' : ''; ?>" 
-                         onclick="toggleDropdown(<?php echo $index; ?>, event)">
-                        <div class="nav-link-content">
-                            <div class="nav-icon">
-                                <?php echo getIcon($item['icon']); ?>
+            <?php foreach ($nav_items as $index => $item): ?>
+                <li class="nav-item">
+                    <?php if ($item['expandable'] && !empty($item['submenu'])): ?>
+                        <div class="nav-link <?php echo $item['active'] ? 'active' : ''; ?> expandable <?php echo isset($item['expanded']) && $item['expanded'] ? 'expanded' : ''; ?>"
+                            onclick="toggleDropdown(<?php echo $index; ?>, event)">
+                            <div class="nav-link-content">
+                                <div class="nav-icon">
+                                    <?php echo getIcon($item['icon']); ?>
+                                </div>
+                                <?php echo $item['name']; ?>
                             </div>
-                            <?php echo $item['name']; ?>
-                        </div>
-                        <div class="dropdown-icon">
-                            <?php echo getIcon('chevron-down'); ?>
-                        </div>
-                    </div>
-                    <div class="submenu <?php echo isset($item['expanded']) && $item['expanded'] ? 'expanded' : ''; ?>" id="submenu-<?php echo $index; ?>">
-                        <?php foreach($item['submenu'] as $subitem): ?>
-                        <a href="<?php echo $subitem['url']; ?>" class="submenu-item <?php echo isset($subitem['active']) && $subitem['active'] ? 'active' : ''; ?>">
-                            <div class="submenu-icon">
-                                <?php echo getIcon($subitem['icon']); ?>
+                            <div class="dropdown-icon">
+                                <?php echo getIcon('chevron-down'); ?>
                             </div>
-                            <?php echo $subitem['name']; ?>
+                        </div>
+                        <div class="submenu <?php echo isset($item['expanded']) && $item['expanded'] ? 'expanded' : ''; ?>"
+                            id="submenu-<?php echo $index; ?>">
+                            <?php foreach ($item['submenu'] as $subitem): ?>
+                                <a href="<?php echo $subitem['url']; ?>"
+                                    class="submenu-item <?php echo isset($subitem['active']) && $subitem['active'] ? 'active' : ''; ?>">
+                                    <div class="submenu-icon">
+                                        <?php echo getIcon($subitem['icon']); ?>
+                                    </div>
+                                    <?php echo $subitem['name']; ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <a href="<?php echo $item['url']; ?>" class="nav-link <?php echo $item['active'] ? 'active' : ''; ?>">
+                            <div class="nav-link-content">
+                                <div class="nav-icon">
+                                    <?php echo getIcon($item['icon']); ?>
+                                </div>
+                                <?php echo $item['name']; ?>
+                            </div>
                         </a>
-                        <?php endforeach; ?>
-                    </div>
-                <?php else: ?>
-                    <a href="<?php echo $item['url']; ?>" 
-                       class="nav-link <?php echo $item['active'] ? 'active' : ''; ?>">
-                        <div class="nav-link-content">
-                            <div class="nav-icon">
-                                <?php echo getIcon($item['icon']); ?>
-                            </div>
-                            <?php echo $item['name']; ?>
-                        </div>
-                    </a>
-                <?php endif; ?>
-            </li>
+                    <?php endif; ?>
+                </li>
             <?php endforeach; ?>
         </ul>
 
@@ -257,65 +278,66 @@ $nav_items = [
             <div class="section-title">List of Residents</div>
             <div class="table-controls">
                 <div>
-                    Show 
+                    Show
                     <select class="entries-select" onchange="updateEntries(this.value)">
                         <option value="5">5</option>
                         <option value="10">10</option>
                         <option value="25">25</option>
                         <option value="50">50</option>
-                    </select> 
+                    </select>
                     entries
                 </div>
-                <button class="add-resident-btn" onclick="window.location.href='./AddResidents.php'">+ Add Resident</button>
+                <button class="add-resident-btn" onclick="window.location.href='./AddResidents.php'">+ Add
+                    Resident</button>
             </div>
             <table class="residents-table" id="residentsTable">
                 <thead>
                     <tr>
                         <th>Fullname</th>
-                        <th>Resident Id</th>
-                        <th>Age</th>
-                        <th>Civil Status</th>
-                        <th>Gender</th>
-                        <th>Contact Number</th>
-                        <th>Email Address</th>
+                        <th>Position</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (mysqli_num_rows($result) > 0): ?>
-                        <?php 
-                        $entries_per_page = isset($_GET['entries']) ? (int)$_GET['entries'] : 5;
-                        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                        <?php
+                        $entries_per_page = isset($_GET['entries']) ? (int) $_GET['entries'] : 5;
+                        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
                         $start = ($page - 1) * $entries_per_page;
                         $total_rows = mysqli_num_rows($result);
                         mysqli_data_seek($result, $start);
-                        for ($i = 0; $i < $entries_per_page && $row = mysqli_fetch_assoc($result); $i++): 
-                        ?>
+                        for ($i = 0; $i < $entries_per_page && $row = mysqli_fetch_assoc($result); $i++):
+                            ?>
                             <tr>
                                 <td class="resident-name">
                                     <div class="resident-avatar">
-                                        <?php echo strtoupper(substr($row['fullname'], 0, 1)); ?>
+                                        <?php echo strtoupper(substr($row['first_name'], 0, 1)); ?>
                                     </div>
-                                    <?php echo htmlspecialchars($row['fullname']); ?>
+                                    <?php echo htmlspecialchars($row['first_name'] . " " . $row['last_name']); ?>
                                 </td>
-                                <td><?php echo htmlspecialchars($row['resident_id']); ?></td>
-                                <td><?php echo htmlspecialchars($row['age']); ?></td>
-                                <td><?php echo htmlspecialchars($row['civil_status']); ?></td>
-                                <td><?php echo htmlspecialchars($row['gender']); ?></td>
-                                <td><?php echo htmlspecialchars($row['contact_number']); ?></td>
-                                <td><?php echo htmlspecialchars($row['email']); ?></td>
+                                <td><?php echo htmlspecialchars($row['position']); ?></td>
+                                <td><?php echo htmlspecialchars($row['status']); ?></td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="action-btn view" title="View" onclick="window.location.href='/view_resident.php?id=<?php echo $row['resident_id']; ?>'">
-                                            <div class="action-icon">
-                                                <?php echo getIcon('eye'); ?>
+                                        <?php if($row['status'] == "inactive"): ?>
+                                        <form method="POST">
+                                            <input type="hidden" name="id" value="<?php echo $row['id'] ?>">
+                                            <div class="admin-action-buttons">
+                                                <button class="admin-btn-action admin-btn-edit" title="Approve" type="submit" name="approve">
+                                                    <svg class="admin-action-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" d="M5 11.917 9.724 16.5 19 7.5"/>
+                                                    </svg>
+                                                </button>
+                                                <button class="admin-btn-action admin-btn-edit" title="Reject" type="submit" name="reject">
+                                                    <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-x-lg" viewBox="0 0 24 24">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+                                                    </svg>
+                                                </button>
                                             </div>
-                                        </button>
-                                        <button class="action-btn edit" title="Edit" onclick="window.location.href='/edit_resident.php?id=<?php echo $row['resident_id']; ?>'">
-                                            <div class="action-icon">
-                                                <?php echo getIcon('pencil'); ?>
-                                            </div>
-                                        </button>
+                                        </form>
+                                        
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>
@@ -329,7 +351,7 @@ $nav_items = [
             </table>
             <?php if (mysqli_num_rows($result) > $entries_per_page): ?>
                 <div class="pagination">
-                    <?php 
+                    <?php
                     $total_pages = ceil($total_rows / $entries_per_page);
                     for ($i = 1; $i <= $total_pages; $i++): ?>
                         <a href="?page=<?php echo $i; ?>&entries=<?php echo $entries_per_page; ?>" <?php echo $i == $page ? 'style="font-weight: bold; color: #4CAF50;"' : ''; ?>>
@@ -343,6 +365,7 @@ $nav_items = [
 
     <script src="../js/admin.js"></script>
 </body>
+
 </html>
 <?php
 mysqli_close($conn);

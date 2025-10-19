@@ -2,10 +2,12 @@
 session_start();
 
 // Database configuration
-$host = "127.0.0.1";
-$dbname = "barangay468_db";
-$username = "root";
-$password = "";
+$host = '127.0.0.1';
+$dbname = 'u539413584_db';
+$username = 'u539413584_admin';
+$password = 'Q5b&kOh+2';
+
+
 // Initialize variables
 $error = '';
 $success = '';
@@ -32,13 +34,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            
+
+        } catch (PDOException $e) {
+            $host = "127.0.0.1";
+            $dbname = "barangay468_db";
+            $username = "root";
+            $password = "";
+            //$error = 'Database connection failed: ' . $e->getMessage();
+            $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        }
+        try{
             // Check admin_users first
-            $stmt_admin = $pdo->prepare("SELECT id, email, password, first_name, last_name, position FROM admin_users WHERE email = ?");
+            $stmt_admin = $pdo->prepare("SELECT id, email, password, first_name, last_name, position, status FROM admin_users WHERE email = ?");
             $stmt_admin->execute([$email]);
             $user_admin = $stmt_admin->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($user_admin && password_verify($password_input, $user_admin['password'])) {
+                if($user_admin['status'] != "active"){
+                    header('Location: index.php');
+                    exit("Wait for account approval");
+                }
                 $_SESSION['user_type'] = 'official';
                 $_SESSION['user_id'] = $user_admin['id'];
                 $_SESSION['user_email'] = $user_admin['email'];
@@ -50,16 +67,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $expires = time() + (30 * 24 * 60 * 60); // 30 days
                     setcookie('remember_token', $token, $expires, '/', '', false, true);
                 }
-                
+
                 header('Location: admin/Dashboard.php');
                 exit();
             }
-            
+
             // If not found in admin, check residents
             $stmt_resident = $pdo->prepare("SELECT id, email, password, first_name, last_name FROM residents_users WHERE email = ?");
             $stmt_resident->execute([$email]);
             $user_resident = $stmt_resident->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($user_resident && password_verify($password_input, $user_resident['password'])) {
                 $_SESSION['user_type'] = 'resident';
                 $_SESSION['user_id'] = $user_resident['id'];
@@ -71,15 +88,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $expires = time() + (30 * 24 * 60 * 60); // 30 days
                     setcookie('remember_token', $token, $expires, '/', '', false, true);
                 }
-                
+
                 header('Location: resident/Dashboard.php');
                 exit();
             }
-            
+
             $error = 'Invalid email or password.';
-            
         } catch (PDOException $e) {
-            $error = 'Database connection failed: ' . $e->getMessage();
+
         }
     }
 }
@@ -130,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="password">Password:</label>
                         <div class="password-container">
                             <input type="password" id="password" name="password" required>
-                            <span class="password-toggle" onclick="togglePassword()">
+                            <span class="password-toggle" onclick="togglePassword('password')">
                                 <svg id="eye-closed" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m-6.364-9.364L18 18"/>
                                 </svg>
@@ -160,6 +176,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <script src="js/script.js"></script>
+    <script src="./js/script.js"></script>
 </body>
 </html>

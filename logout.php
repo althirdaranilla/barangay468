@@ -27,6 +27,6 @@ header("Expires: 0");
 $logout_message = urlencode('You have been successfully logged out.');
 
 // Redirect to login page with logout message
-header("Location: login.php?logout=success&msg=" . $logout_message);
+header("Location: index.php?logout=success&msg=" . $logout_message);
 exit();
 ?>

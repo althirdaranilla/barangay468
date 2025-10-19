@@ -11,73 +11,18 @@ if (!$_SESSION['is_admin']) {
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-log_activity($_SESSION['user_position'], "Viewed", "Manage Officials", $conn);
+log_activity($_SESSION['user_position'], "Viewed", "Manage Residents", $conn);
 
 // Fetch officials data from database
-$officials = [];
-
-$host = '127.0.0.1';
-$dbname = 'u539413584_db';
-$username = 'u539413584_admin';
-$password = 'Q5b&kOh+2';
-$port = 3306;
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $_SESSION['online'] = true;
-} catch (Exception $e) {
-    //$error = $e->getMessage();
-    //$err_str = (string) $error;
-    echo "<script>";
-    echo "console.log('Connection to database failed');";
-    echo "console.log('Connecting to local database.');";
-    echo "</script>";
-    $_SESSION['online'] = false;
-    $dbname = 'barangay468_db';
-    $username = "root";
-    $password = "";
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    if ($conn->connect_error) {
-        echo "alert('Connection to database failed: $conn->connect_error')";
-    }
+$residents = [];
+$sql_residents = "SELECT * FROM residents ORDER BY resident_id";
+$result_residents = $conn->query($sql_residents);
+if ($result_residents === false) {
+    die("Error retrieving announcements: " . $conn->error);
 }
-try {
-    $stmt = $pdo->prepare("SELECT * FROM admin_users ORDER BY last_name");
-    $stmt->execute();
-    $officials = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    error_log("Database error: " . $e->getMessage());
-    $error = "Failed to load officials data.";
+while ($row = $result_residents->fetch_assoc()) {
+    $residents[] = $row;
 }
-
-// Handle delete action
-if (isset($_GET['delete_id'])) {
-    $delete_id = $_GET['delete_id'];
-    try {
-        $stmt = $pdo->prepare("DELETE FROM officials WHERE id = ?");
-        $stmt->execute([$delete_id]);
-        $_SESSION['message'] = "Official deleted successfully.";
-        header("Location: ManageOfficials.php");
-        exit();
-    } catch (PDOException $e) {
-        error_log("Delete error: " . $e->getMessage());
-        $error = "Failed to delete official.";
-    }
-}
-
-// Get admin name - check multiple possible session variables
-$admin_name = 'Admin'; // Default fallback
-if (isset($_SESSION['admin_name'])) {
-    $admin_name = $_SESSION['admin_name'];
-} elseif (isset($_SESSION['username'])) {
-    $admin_name = $_SESSION['username'];
-} elseif (isset($_SESSION['admin_username'])) {
-    $admin_name = $_SESSION['admin_username'];
-} elseif (isset($_SESSION['name'])) {
-    $admin_name = $_SESSION['name'];
-}
-
 // Navigation menu items (✅ fixed URLs)
 $nav_items = [
     [
@@ -202,7 +147,6 @@ $nav_items = [
 ];
 
 // Function to get icon SVG
-
 ?>
 
 <!DOCTYPE html>

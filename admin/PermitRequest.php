@@ -1,77 +1,76 @@
 <?php
 // Simulating user authentication - in a real application, this would come from session
+require "../database/connection.php";
+require "../database/log_activity.php";
 require "./components/getIcon.php";
 $isAdmin = true;
-$adminName = "Admin";
+$admin_name = $_SESSION['user_name'];
+$user_role = $_SESSION['user_position'];
 
-// Sample transaction logs data
-$transactionLogs = [
+log_activity($user_role, "Viewed", "Permit Requests", $conn);
+// Sample permit request data
+$permitRequests = [
     [
-        'log_id' => 'Adm-1001',
-        'user_role' => 'System Administrator',
-        'resident' => 'Kobe Tokyo',
-        'time_stamp' => '03/06/2025 - 6:48:20 pm',
-        'document_service' => 'Barangay Clearance',
-        'amount' => '¥ 10.00'
+        'permit_id' => 'C1-2024-0001',
+        'fullname' => 'Kobe Tayco',
+        'email' => 'tayco@gmail.com',
+        'purpose' => 'Work',
+        'date_requested' => '10/24/2024',
+        'date_issued' => '10/24/2024',
+        'validity' => '1/24/2025',
+        'status' => 'Printing'
     ],
     [
-        'log_id' => 'Adm-1001',
-        'user_role' => 'System Administrator',
-        'resident' => 'Edrian Volker',
-        'time_stamp' => '03/01/2025 - 6:48:20 pm',
-        'document_service' => 'Certificate of Indigency',
-        'amount' => '¥ 10.00'
+        'permit_id' => 'C1-2024-0002',
+        'fullname' => 'Edrian Valdez',
+        'email' => 'valdez@gmail.com',
+        'purpose' => 'Visa',
+        'date_requested' => '10/22/2024',
+        'date_issued' => '10/24/2024',
+        'validity' => '1/24/2025',
+        'status' => 'Approved'
     ],
     [
-        'log_id' => 'Adm-1001',
-        'user_role' => 'System Administrator',
-        'resident' => 'Meek de Guzman',
-        'time_stamp' => '03/03/2025 - 6:48:20 pm',
-        'document_service' => 'Certificate for Residency',
-        'amount' => '¥ 10.00'
+        'permit_id' => 'C1-2024-0003',
+        'fullname' => 'Althief Aranilla',
+        'email' => 'aranilla@gmail.com',
+        'purpose' => 'Work',
+        'date_requested' => '10/20/2024',
+        'date_issued' => '10/24/2024',
+        'validity' => '1/24/2025',
+        'status' => 'Rejected'
     ],
     [
-        'log_id' => 'Adm-1001',
-        'user_role' => 'System Administrator',
-        'resident' => 'Christian Lorenzo',
-        'time_stamp' => '03/02/2025 - 6:48:20 pm',
-        'document_service' => 'Good Moral',
-        'amount' => '¥ 10.00'
+        'permit_id' => 'C1-2024-0004',
+        'fullname' => 'Christian Somera',
+        'email' => 'somera@gmail.com',
+        'purpose' => 'Work',
+        'date_requested' => '10/20/2024',
+        'date_issued' => '10/24/2024',
+        'validity' => '1/24/2025',
+        'status' => 'Approved'
     ],
     [
-        'log_id' => 'Adm-1001',
-        'user_role' => 'System Administrator',
-        'resident' => 'Althird Avanilla',
-        'time_stamp' => '03/04/2025 - 6:48:20 pm',
-        'document_service' => 'Barangay Clearance',
-        'amount' => '¥ 10.00'
-    ],
-    [
-        'log_id' => 'Adm-1002',
-        'user_role' => 'Staff',
-        'resident' => 'Juan Dela Cruz',
-        'time_stamp' => '03/05/2025 - 2:30:15 pm',
-        'document_service' => 'Business Permit',
-        'amount' => '¥ 15.00'
-    ],
-    [
-        'log_id' => 'Adm-1003',
-        'user_role' => 'Admin',
-        'resident' => 'Maria Santos',
-        'time_stamp' => '03/04/2025 - 10:15:45 am',
-        'document_service' => 'Certificate of Residency',
-        'amount' => '¥ 10.00'
-    ],
-    [
-        'log_id' => 'Adm-1004',
-        'user_role' => 'System Administrator',
-        'resident' => 'Pedro Reyes',
-        'time_stamp' => '03/03/2025 - 4:20:30 pm',
-        'document_service' => 'Barangay ID',
-        'amount' => '¥ 5.00'
+        'permit_id' => 'C1-2024-0005',
+        'fullname' => 'Mark de Guzman',
+        'email' => 'mark@gmail.com',
+        'purpose' => 'Work',
+        'date_requested' => '10/19/2024',
+        'date_issued' => '10/24/2024',
+        'validity' => '1/24/2025',
+        'status' => 'Approved'
     ]
 ];
+$sql_permit = "SELECT * FROM permit_requests ORDER BY date_requested DESC";
+$result_permit = $conn->query($sql_permit);
+if ($result_permit === false) {
+    die("Error retrieving announcements: " . $conn->error);
+}
 
+$permitRequests = [];
+while ($row = $result_permit->fetch_assoc()) {
+    $permitRequests[] = $row;
+}
 // Navigation menu items
 $nav_items = [
     [
@@ -105,13 +104,14 @@ $nav_items = [
         'name' => 'Documents',
         'icon' => 'documents',
         'url' => 'Documents.php',
-        'active' => false,
+        'active' => true,
         'expandable' => true,
         'submenu' => [
             [
-                'name' => 'Manage Clearance Request',
+                'name' => 'Manage Permit Request',
                 'url' => 'ClearanceRequest.php',
-                'icon' => 'circle'
+                'icon' => 'circle',
+                'active' => true
             ],
             [
                 'name' => 'Manage Permit Request',
@@ -170,7 +170,7 @@ $nav_items = [
         'name' => 'Logs',
         'icon' => 'logs',
         'url' => '#',
-        'active' => true,
+        'active' => false,
         'expandable' => true,
         'submenu' => [
             [
@@ -181,8 +181,7 @@ $nav_items = [
             [
                 'name' => 'Transaction Logs',
                 'url' => 'TransactionLogs.php',
-                'icon' => 'circle',
-                'active' => true
+                'icon' => 'circle'
             ]
         ]
     ],
@@ -196,23 +195,21 @@ $nav_items = [
     ]
 ];
 
-// Document type colors
-$documentColors = [
-    'Barangay Clearance' => '#28a745',
-    'Certificate of Indigency' => '#dc3545',
-    'Certificate for Residency' => '#17a2b8',
-    'Good Moral' => '#ffc107',
-    'Business Permit' => '#6f42c1',
-    'Certificate of Residency' => '#20c997',
-    'Barangay ID' => '#fd7e14'
+// Status colorsiuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu
+$statusColors = [
+    'Printing' => '#17a2b8',
+    'Approved' => '#28a745',
+    'Rejected' => '#dc3545',
+    'Pending' => '#ffc107'
 ];
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Transaction Logs</title>
+    <title>Admin - Manage Permit Requests</title>
     <style>
         * {
             margin: 0;
@@ -369,6 +366,7 @@ $documentColors = [
             flex: 1;
             margin-left: 280px;
             padding: 20px;
+            width: 100%;
         }
 
         .admin-header {
@@ -422,27 +420,6 @@ $documentColors = [
             color: #999;
         }
 
-        .admin-filter-container {
-            position: relative;
-        }
-
-        .admin-filter-btn {
-            background: #fff;
-            border: 2px solid #e0e0e0;
-            padding: 10px 15px;
-            border-radius: 25px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .admin-filter-btn:hover {
-            border-color: #4a90e2;
-        }
-
         .admin-avatar {
             width: 40px;
             height: 40px;
@@ -480,7 +457,6 @@ $documentColors = [
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 20px;
         }
 
         .admin-entries-control {
@@ -495,26 +471,9 @@ $documentColors = [
             border-radius: 5px;
         }
 
-        .admin-export-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .admin-export-btn:hover {
-            background: #218838;
-        }
-
         .admin-table-container {
             overflow-x: auto;
+            margin-bottom: 20px;
         }
 
         .admin-table {
@@ -541,23 +500,61 @@ $documentColors = [
             background-color: #f8f9fa;
         }
 
-        .admin-document-badge {
+        .admin-status-badge {
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 600;
             display: inline-block;
-            color: white;
+            text-align: center;
+            min-width: 80px;
         }
 
-        .admin-amount-badge {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            background-color: #e9ecef;
-            color: #495057;
-            display: inline-block;
+        .admin-action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .admin-btn-action {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn-edit {
+            color: #3498db;
+        }
+
+        .admin-btn-edit:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        .admin-btn-delete {
+            color: #e74c3c;
+        }
+
+        .admin-btn-delete:hover {
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        .admin-btn-print {
+            color: #17a2b8;
+        }
+
+        .admin-btn-print:hover {
+            background-color: rgba(23, 162, 184, 0.1);
+        }
+
+        .admin-action-icon {
+            width: 16px;
+            height: 16px;
         }
 
         .admin-table-footer {
@@ -632,12 +629,6 @@ $documentColors = [
             .admin-search-input {
                 width: 100%;
             }
-
-            .admin-section-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
         }
     </style>
 </head>
@@ -702,7 +693,7 @@ $documentColors = [
                                     <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
                                 </svg>
                             </div>
-                            <span>Log out</span>
+                            <span>Logout</span>
                         </div>
                     </div>
                 </li>
@@ -712,7 +703,7 @@ $documentColors = [
         <!-- Main Content -->
         <div class="admin-main-content">
             <div class="admin-header">
-                <h1 class="admin-welcome-text">Welcome, <?php echo $adminName; ?></h1>
+                <h1 class="admin-welcome-text">Welcome, <?php echo $admin_name; ?></h1>
                 <div class="admin-header-right">
                     <div class="admin-search-container">
                         <div class="admin-search-icon">
@@ -720,15 +711,7 @@ $documentColors = [
                                 <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                             </svg>
                         </div>
-                        <input type="text" class="admin-search-input" placeholder="Search transaction logs...">
-                    </div>
-                    <div class="admin-filter-container">
-                        <button class="admin-filter-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/>
-                            </svg>
-                            Filter
-                        </button>
+                        <input type="text" class="admin-search-input" placeholder="Search permit requests...">
                     </div>
                     <div class="admin-avatar">A</div>
                 </div>
@@ -736,59 +719,67 @@ $documentColors = [
 
             <div class="admin-dashboard-section">
                 <div class="admin-section-header">
-                    <h2 class="admin-section-title">Transaction Logs</h2>
-                </div>
-
-                <div class="admin-table-controls">
-                    <div class="admin-entries-control">
-                        <span>Show</span>
-                        <select class="admin-entries-select">
-                            <option value="5" selected>5</option>
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                        <span>entries</span>
+                    <h2 class="admin-section-title">List of Permit Request</h2>
+                    <div class="admin-table-controls">
+                        <div class="admin-entries-control">
+                            <span>Show</span>
+                            <select class="admin-entries-select">
+                                <option value="5" selected>5</option>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                            <span>entries</span>
+                        </div>
                     </div>
-                    <button class="admin-export-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                        </svg>
-                        Export CSV
-                    </button>
                 </div>
 
                 <div class="admin-table-container">
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Log ID</th>
-                                <th>User Role</th>
-                                <th>Resident</th>
-                                <th>Time Stamp</th>
-                                <th>Document Service</th>
-                                <th>Amount (donation)</th>
+                                <th>Permit ID</th>
+                                <th>Fullname</th>
+                                <th>Email</th>
+                                <th>Purpose</th>
+                                <th>Date Requested</th>
+                                <th>Date Issued</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($transactionLogs as $log): 
-                                $documentColor = $documentColors[$log['document_service']] ?? '#6c757d';
-                            ?>
+                            <?php foreach ($permitRequests as $request): ?>
                             <tr>
-                                <td><?php echo $log['log_id']; ?></td>
-                                <td><?php echo $log['user_role']; ?></td>
-                                <td><?php echo $log['resident']; ?></td>
-                                <td><?php echo $log['time_stamp']; ?></td>
+                                <td><?php echo $request['id']; ?></td>
+                                <td><?php echo $request['first_name'] . " " . $request['middle_name'] . " " . $request['last_name']; ?></td>
+                                <td><?php echo $request['email']; ?></td>
+                                <td><?php echo $request['purpose']; ?></td>
+                                <td><?php echo $request['date_requested']; ?></td>
+                                <td><?php echo $request['date_issued']; ?></td>
                                 <td>
-                                    <span class="admin-document-badge" style="background-color: <?php echo $documentColor; ?>;">
-                                        <?php echo $log['document_service']; ?>
+                                    <span class="admin-status-badge" style="background-color: <?php echo $statusColors[$request['status']]; ?>; color: white;">
+                                        <?php echo $request['status']; ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="admin-amount-badge">
-                                        <?php echo $log['amount']; ?>
-                                    </span>
+                                    <div class="admin-action-buttons">
+                                        <button class="admin-btn-action admin-btn-edit" title="Edit">
+                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="admin-btn-action admin-btn-print" title="Print">
+                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="admin-btn-action admin-btn-delete" title="Delete">
+                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -798,13 +789,12 @@ $documentColors = [
 
                 <div class="admin-table-footer">
                     <div class="admin-entries-info">
-                        Showing 1 to <?php echo count($transactionLogs); ?> of <?php echo count($transactionLogs); ?> entries
+                        Showing 1 to <?php echo count($permitRequests); ?> of <?php echo count($permitRequests); ?> entries
                     </div>
                     <nav class="admin-pagination">
                         <ul style="display: flex; list-style: none; gap: 5px;">
                             <li><a href="#" class="admin-page-link">Previous</a></li>
                             <li class="admin-page-item active"><a href="#" class="admin-page-link">1</a></li>
-                            <li><a href="#" class="admin-page-link">2</a></li>
                             <li><a href="#" class="admin-page-link">Next</a></li>
                         </ul>
                     </nav>
@@ -863,33 +853,6 @@ $documentColors = [
         entriesSelect.addEventListener('change', function() {
             // In a real application, this would reload the table with the selected number of entries
             console.log('Show ' + this.value + ' entries');
-        });
-
-        // Export button functionality
-        document.querySelector('.admin-export-btn').addEventListener('click', function() {
-            alert('Exporting transaction logs to CSV file...');
-        });
-
-        // Filter button functionality
-        document.querySelector('.admin-filter-btn').addEventListener('click', function() {
-            alert('Opening filter options...');
-        });
-
-        // Sort functionality (by time stamp)
-        let sortDirection = 'desc';
-        document.querySelector('th:nth-child(4)').addEventListener('click', function() {
-            const rows = Array.from(tableRows);
-            const sortedRows = rows.sort((a, b) => {
-                const dateA = new Date(a.cells[3].textContent);
-                const dateB = new Date(b.cells[3].textContent);
-                return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
-            });
-            
-            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-            
-            const tbody = document.querySelector('.admin-table tbody');
-            tbody.innerHTML = '';
-            sortedRows.forEach(row => tbody.appendChild(row));
         });
     </script>
 </body>

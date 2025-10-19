@@ -1,41 +1,36 @@
 <?php
 // Simulating user authentication - in a real application, this would come from session
+require "../database/connection.php";
+require "../database/log_activity.php";
+require "./components/getIcon.php";
+
 $isAdmin = true;
 $adminName = "Admin";
 
+$sql_staff = "SELECT * FROM staff ORDER BY number DESC";
+$result_staff = $conn->query($sql_staff);
+if ($result_staff === false) {
+    die("Error retrieving announcements: " . $conn->error);
+}
+
+$staffMembers = [];
+while ($row = $result_staff->fetch_assoc()) {
+    $staffMembers[] = $row;
+}
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+    if(isset($_POST['delete'])){
+        $id = $_POST['id'];
+        $stmt = $conn->prepare("DELETE FROM staff WHERE number=?");
+        $stmt->bind_param("s", $id);
+        if ($stmt->execute()) {
+            echo "<script>console.log('Staff Deleted.');</script>";
+        } else {
+            echo "<script>console.log('Failed to delete staff.');</script>";
+        }
+    }
+}
+
 // Sample staff data
-$staffMembers = [
-    [
-        'fullname' => 'Kobe Tayco',
-        'staff_id' => '748-2024-0001',
-        'role' => 'Tanod',
-        'status' => 'Active'
-    ],
-    [
-        'fullname' => 'Edrian Valdez',
-        'staff_id' => '748-2024-0002',
-        'role' => 'Tanod',
-        'status' => 'Active'
-    ],
-    [
-        'fullname' => 'Athind Aranilla',
-        'staff_id' => '748-2024-0003',
-        'role' => 'Street Sweeper',
-        'status' => 'Active'
-    ],
-    [
-        'fullname' => 'Christian Somera',
-        'staff_id' => '748-2024-0004',
-        'role' => 'Street Sweeper',
-        'status' => 'Active'
-    ],
-    [
-        'fullname' => 'Mark de Guzman',
-        'staff_id' => '748-2024-0005',
-        'role' => 'Street Sweeper',
-        'status' => 'Active'
-    ]
-];
 
 // Navigation menu items
 $nav_items = [
@@ -75,7 +70,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'Clearance.php',
+                'url' => 'ClearanceRequest.php',
                 'icon' => 'circle'
             ],
             [
@@ -99,7 +94,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Resident Records',
-                'url' => 'ResidentRecords.php',
+                'url' => 'Residents.php',
                 'icon' => 'circle'
             ],
             [
@@ -126,7 +121,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Blotter Records',
-                'url' => 'BlotterRecords.php',
+                'url' => 'Blotter.php',
                 'icon' => 'circle'
             ]
         ]
@@ -153,7 +148,7 @@ $nav_items = [
     [
         'name' => 'Announcements',
         'icon' => 'announcements',
-        'url' => 'announcements.php',
+        'url' => 'Announcement.php',
         'active' => false,
         'expandable' => false,
         'submenu' => []
@@ -622,9 +617,7 @@ $nav_items = [
                     <div class="admin-nav-link <?php echo $item['expandable'] ? 'expandable' : ''; ?> <?php echo $item['active'] ? 'active' : ''; ?>">
                         <div class="admin-nav-link-content">
                             <div class="admin-nav-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                                </svg>
+                                <?php echo getIcon($item['icon']); ?>
                             </div>
                             <span><?php echo $item['name']; ?></span>
                         </div>
@@ -691,12 +684,14 @@ $nav_items = [
             <div class="admin-dashboard-section">
                 <div class="admin-section-header">
                     <h2 class="admin-section-title">Manage Staff</h2>
-                    <button class="admin-btn-add">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                        </svg>
-                        Add New Staff
-                    </button>
+                    <a href="AddStaff.php">
+                        <button class="admin-btn-add">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                            Add New Staff
+                        </button>
+                    </a>
                 </div>
 
                 <div class="admin-table-container">
@@ -713,24 +708,23 @@ $nav_items = [
                         <tbody>
                             <?php foreach ($staffMembers as $staff): ?>
                             <tr>
-                                <td><?php echo $staff['fullname']; ?></td>
-                                <td><?php echo $staff['staff_id']; ?></td>
+                                <td><?php echo $staff['full_name']; ?></td>
+                                <td><?php echo $staff['id']; ?></td>
                                 <td><?php echo $staff['role']; ?></td>
                                 <td>
                                     <span class="admin-status-badge admin-status-active"><?php echo $staff['status']; ?></span>
                                 </td>
                                 <td>
                                     <div class="admin-action-buttons">
-                                        <button class="admin-btn-action admin-btn-edit" title="Edit">
-                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                                            </svg>
-                                        </button>
-                                        <button class="admin-btn-action admin-btn-delete" title="Delete">
-                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                            </svg>
-                                        </button>
+                                        <form method="POST">
+                                            <input type="hidden" name="id" value="<?php echo $staff['number'] ?>" />
+                                            <button class="admin-btn-action admin-btn-delete" title="Delete" type="submit" name="delete">
+                                                <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                        
                                     </div>
                                 </td>
                             </tr>

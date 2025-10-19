@@ -1,68 +1,60 @@
 <?php
 // Simulating user authentication - in a real application, this would come from session
+require "../database/connection.php";
+require "./components/getIcon.php";
+
 $isAdmin = true;
 $adminName = "Admin";
 
-// Sample clearance request data
-$clearanceRequests = [
+// Sample household data
+$households = [
     [
-        'clearance_id' => 'C1-2024-0001',
-        'fullname' => 'Kobe Tayco',
-        'email' => 'tayco@gmail.com',
-        'purpose' => 'Work',
-        'date_requested' => '10/24/2024',
-        'date_issued' => '10/24/2024',
-        'validity' => '1/24/2025',
-        'status' => 'Printing'
+        'number' => '2320',
+        'members' => '6',
+        'address' => '123 Main Street',
+        'head_of_household' => 'Juan Dela Cruz'
     ],
     [
-        'clearance_id' => 'C1-2024-0002',
-        'fullname' => 'Edrian Valdez',
-        'email' => 'valdez@gmail.com',
-        'purpose' => 'Visa',
-        'date_requested' => '10/22/2024',
-        'date_issued' => '10/24/2024',
-        'validity' => '1/24/2025',
-        'status' => 'Approved'
+        'number' => '2321',
+        'members' => '8',
+        'address' => '456 Oak Avenue',
+        'head_of_household' => 'Maria Santos'
     ],
     [
-        'clearance_id' => 'C1-2024-0003',
-        'fullname' => 'Althief Aranilla',
-        'email' => 'aranilla@gmail.com',
-        'purpose' => 'Work',
-        'date_requested' => '10/20/2024',
-        'date_issued' => '10/24/2024',
-        'validity' => '1/24/2025',
-        'status' => 'Rejected'
+        'number' => '2322',
+        'members' => '5',
+        'address' => '789 Pine Road',
+        'head_of_household' => 'Antonio Reyes'
     ],
     [
-        'clearance_id' => 'C1-2024-0004',
-        'fullname' => 'Christian Somera',
-        'email' => 'somera@gmail.com',
-        'purpose' => 'Work',
-        'date_requested' => '10/20/2024',
-        'date_issued' => '10/24/2024',
-        'validity' => '1/24/2025',
-        'status' => 'Approved'
+        'number' => '2323',
+        'members' => '7',
+        'address' => '101 Maple Lane',
+        'head_of_household' => 'Eduardo Garcia'
     ],
     [
-        'clearance_id' => 'C1-2024-0005',
-        'fullname' => 'Mark de Guzman',
-        'email' => 'mark@gmail.com',
-        'purpose' => 'Work',
-        'date_requested' => '10/19/2024',
-        'date_issued' => '10/24/2024',
-        'validity' => '1/24/2025',
-        'status' => 'Approved'
+        'number' => '2324',
+        'members' => '10',
+        'address' => '202 Cedar Boulevard',
+        'head_of_household' => 'Sofia Martinez'
     ]
 ];
+$sql_households = "SELECT * FROM households ORDER BY household_no ASC";
+$result_households = $conn->query($sql_households);
+if ($result_households === false) {
+    die("Error retrieving announcements: " . $conn->error);
+}
 
+$households = [];
+while ($row = $result_households->fetch_assoc()) {
+    $households[] = $row;
+}
 // Navigation menu items
 $nav_items = [
     [
         'name' => 'Dashboard',
         'icon' => 'dashboard',
-        'url' => 'AdminDashboard.php',
+        'url' => 'Dashboard.php',
         'active' => false,
         'expandable' => false,
         'submenu' => []
@@ -76,12 +68,12 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Officials',
-                'url' => '../admin/ManageOfficials.php',
+                'url' => 'ManageOfficials.php',
                 'icon' => 'circle'
             ],
             [
                 'name' => 'Manage Staffs',
-                'url' => 'manage-staffs.php',
+                'url' => 'ManageStaffs.php',
                 'icon' => 'circle'
             ]
         ]
@@ -89,15 +81,14 @@ $nav_items = [
     [
         'name' => 'Documents',
         'icon' => 'documents',
-        'url' => '#',
-        'active' => true,
+        'url' => 'Documents.php',
+        'active' => false,
         'expandable' => true,
         'submenu' => [
             [
                 'name' => 'Manage Clearance Request',
-                'url' => 'Clearance.php',
-                'icon' => 'circle',
-                'active' => true
+                'url' => 'ClearanceRequest.php',
+                'icon' => 'circle'
             ],
             [
                 'name' => 'Manage Permit Request',
@@ -120,7 +111,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Manage Resident Records',
-                'url' => 'ResidentRecords.php',
+                'url' => 'Residents.php',
                 'icon' => 'circle'
             ],
             [
@@ -133,8 +124,8 @@ $nav_items = [
     [
         'name' => 'Households',
         'icon' => 'households',
-        'url' => '#',
-        'active' => false,
+        'url' => 'Households.php',
+        'active' => true,
         'expandable' => false,
         'submenu' => []
     ],
@@ -147,7 +138,7 @@ $nav_items = [
         'submenu' => [
             [
                 'name' => 'Blotter Records',
-                'url' => 'BlotterRecords.php',
+                'url' => 'Blotter.php',
                 'icon' => 'circle'
             ]
         ]
@@ -174,28 +165,32 @@ $nav_items = [
     [
         'name' => 'Announcements',
         'icon' => 'announcements',
-        'url' => '#',
+        'url' => 'Announcement.php',
         'active' => false,
         'expandable' => false,
         'submenu' => []
     ]
 ];
 
-// Status colors
-$statusColors = [
-    'Printing' => '#17a2b8',
-    'Approved' => '#28a745',
-    'Rejected' => '#dc3545',
-    'Pending' => '#ffc107'
-];
-
+if($_SERVER['REQUEST_METHOD'] === 'POST'){
+    if(isset($_POST['view'])){
+        echo "
+            <div id='myModal' class='modal' style='display:block'>
+                <div class='modal-content'>
+                    <span class='close' onclick='closeModal()'>&times;</span>
+                    
+                </div>
+            </div>
+        ";
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Manage Clearance Requests</title>
+    <title>Admin - Household Information</title>
     <style>
         * {
             margin: 0;
@@ -438,10 +433,31 @@ $statusColors = [
             color: #333;
         }
 
+        .admin-btn-add {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .admin-btn-add:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
         .admin-table-controls {
             display: flex;
             align-items: center;
             gap: 15px;
+            margin-bottom: 20px;
         }
 
         .admin-entries-control {
@@ -458,13 +474,11 @@ $statusColors = [
 
         .admin-table-container {
             overflow-x: auto;
-            margin-bottom: 20px;
         }
 
         .admin-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1000px;
         }
 
         .admin-table th, .admin-table td {
@@ -485,16 +499,6 @@ $statusColors = [
             background-color: #f8f9fa;
         }
 
-        .admin-status-badge {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: inline-block;
-            text-align: center;
-            min-width: 80px;
-        }
-
         .admin-action-buttons {
             display: flex;
             gap: 10px;
@@ -513,28 +517,28 @@ $statusColors = [
             transition: all 0.3s ease;
         }
 
-        .admin-btn-edit {
+        .admin-btn-view {
             color: #3498db;
         }
 
-        .admin-btn-edit:hover {
+        .admin-btn-view:hover {
             background-color: rgba(52, 152, 219, 0.1);
         }
 
+        .admin-btn-edit {
+            color: #28a745;
+        }
+
+        .admin-btn-edit:hover {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+
         .admin-btn-delete {
-            color: #e74c3c;
+            color: #dc3545;
         }
 
         .admin-btn-delete:hover {
-            background-color: rgba(231, 76, 60, 0.1);
-        }
-
-        .admin-btn-print {
-            color: #17a2b8;
-        }
-
-        .admin-btn-print:hover {
-            background-color: rgba(23, 162, 184, 0.1);
+            background-color: rgba(220, 53, 69, 0.1);
         }
 
         .admin-action-icon {
@@ -614,6 +618,12 @@ $statusColors = [
             .admin-search-input {
                 width: 100%;
             }
+
+            .admin-section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
         }
     </style>
 </head>
@@ -638,9 +648,7 @@ $statusColors = [
                     <div class="admin-nav-link <?php echo $item['expandable'] ? 'expandable' : ''; ?> <?php echo $item['active'] ? 'active' : ''; ?>">
                         <div class="admin-nav-link-content">
                             <div class="admin-nav-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                                </svg>
+                                <?php echo getIcon($item['icon']); ?>
                             </div>
                             <span><?php echo $item['name']; ?></span>
                         </div>
@@ -657,7 +665,7 @@ $statusColors = [
                     <ul class="admin-submenu <?php echo $item['active'] ? 'expanded' : ''; ?>">
                         <?php foreach ($item['submenu'] as $subitem): ?>
                         <li class="admin-nav-item">
-                            <a href="<?php echo $subitem['url']; ?>" class="admin-submenu-item <?php echo isset($subitem['active']) && $subitem['active'] ? 'active' : ''; ?>">
+                            <a href="<?php echo $subitem['url']; ?>" class="admin-submenu-item">
                                 <div class="admin-submenu-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                         <circle cx="12" cy="12" r="4"/>
@@ -680,7 +688,7 @@ $statusColors = [
                                     <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
                                 </svg>
                             </div>
-                            <span>Logout</span>
+                            <span>Log out</span>
                         </div>
                     </div>
                 </li>
@@ -698,7 +706,7 @@ $statusColors = [
                                 <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                             </svg>
                         </div>
-                        <input type="text" class="admin-search-input" placeholder="Search clearance requests...">
+                        <input type="text" class="admin-search-input" placeholder="Search households...">
                     </div>
                     <div class="admin-avatar">A</div>
                 </div>
@@ -706,18 +714,25 @@ $statusColors = [
 
             <div class="admin-dashboard-section">
                 <div class="admin-section-header">
-                    <h2 class="admin-section-title">List of Clearance Request</h2>
-                    <div class="admin-table-controls">
-                        <div class="admin-entries-control">
-                            <span>Show</span>
-                            <select class="admin-entries-select">
-                                <option value="5" selected>5</option>
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                            </select>
-                            <span>entries</span>
-                        </div>
+                    <h2 class="admin-section-title">Household Information</h2>
+                    <button class="admin-btn-add">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                        Add New Household
+                    </button>
+                </div>
+
+                <div class="admin-table-controls">
+                    <div class="admin-entries-control">
+                        <span>Show</span>
+                        <select class="admin-entries-select">
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
+                        <span>entries</span>
                     </div>
                 </div>
 
@@ -725,50 +740,44 @@ $statusColors = [
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>Clearance ID</th>
-                                <th>Fullname</th>
-                                <th>Email</th>
-                                <th>Purpose</th>
-                                <th>Date Requested</th>
-                                <th>Date Issued</th>
-                                <th>Validity</th>
-                                <th>Status</th>
+                                <th>No.</th>
+                                <th>Household Number</th>
+                                <th>Head of Household</th>
+                                <th>Address</th>
+                                <th>Number of Members</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($clearanceRequests as $request): ?>
+                            <?php foreach ($households as $index => $household): ?>
                             <tr>
-                                <td><?php echo $request['clearance_id']; ?></td>
-                                <td><?php echo $request['fullname']; ?></td>
-                                <td><?php echo $request['email']; ?></td>
-                                <td><?php echo $request['purpose']; ?></td>
-                                <td><?php echo $request['date_requested']; ?></td>
-                                <td><?php echo $request['date_issued']; ?></td>
-                                <td><?php echo $request['validity']; ?></td>
+                                <td><?php echo $index + 1; ?></td>
+                                <td><?php echo $household['number']; ?></td>
+                                <td><?php echo $household['family_head']; ?></td>
+                                <td><?php echo $household['address']; ?></td>
+                                <td><?php echo $household['members_no']; ?></td>
                                 <td>
-                                    <span class="admin-status-badge" style="background-color: <?php echo $statusColors[$request['status']]; ?>; color: white;">
-                                        <?php echo $request['status']; ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="admin-action-buttons">
-                                        <button class="admin-btn-action admin-btn-edit" title="Edit">
-                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                                            </svg>
-                                        </button>
-                                        <button class="admin-btn-action admin-btn-print" title="Print">
-                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
-                                            </svg>
-                                        </button>
-                                        <button class="admin-btn-action admin-btn-delete" title="Delete">
-                                            <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                            </svg>
-                                        </button>
-                                    </div>
+                                    <form method="POST">
+                                        <input type="hidden" name="number" value="<?php $household['number'] ?>" />
+                                        <input type="hidden" name="members" value="<?php $household['members'] ?>" />
+                                        <div class="admin-action-buttons">
+                                            <button class="admin-btn-action admin-btn-view" title="View Details" type="submit" name="view">
+                                                <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                                                </svg>
+                                            </button>
+                                            <button class="admin-btn-action admin-btn-edit" title="Edit" type="submit" name="edit">
+                                                <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                                </svg>
+                                            </button>
+                                            <button class="admin-btn-action admin-btn-delete" title="Delete" type="submit" name="delete">
+                                                <svg class="admin-action-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </form>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -778,7 +787,7 @@ $statusColors = [
 
                 <div class="admin-table-footer">
                     <div class="admin-entries-info">
-                        Showing 1 to <?php echo count($clearanceRequests); ?> of <?php echo count($clearanceRequests); ?> entries
+                        Showing 1 to <?php echo count($households); ?> of <?php echo count($households); ?> entries
                     </div>
                     <nav class="admin-pagination">
                         <ul style="display: flex; list-style: none; gap: 5px;">
@@ -843,6 +852,47 @@ $statusColors = [
             // In a real application, this would reload the table with the selected number of entries
             console.log('Show ' + this.value + ' entries');
         });
+
+        // Action buttons functionality
+        document.querySelectorAll('.admin-btn-view').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert('View household details');
+            });
+        });
+
+        document.querySelectorAll('.admin-btn-edit').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert('Edit household');
+            });
+        });
+
+        document.querySelectorAll('.admin-btn-delete').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete this household?')) {
+                    alert('Household deleted');
+                }
+            });
+        });
+
+        // Add new household button
+        document.querySelector('.admin-btn-add').addEventListener('click', function() {
+            window.location.href = 'AddHousehold.php';
+        });
+
+        const modal = document.getElementById("myModal");
+
+        const openModal = () => {
+            modal.style.display = "block";
+        }
+        const closeModal = () => {
+            modal.style.display = "none";
+        }
+        window.addEventListener("click", function(event) {
+            if (event.target !== modal) {
+                closeModal();
+            }
+        });
+
     </script>
 </body>
 </html>

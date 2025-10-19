@@ -21,7 +21,7 @@ $nav_items = [
         'name' => 'Brgy. Officials and Staffs',
         'icon' => 'users',
         'url' => '#',
-        'active' => false,
+        'active' => true,
         'expandable' => true,
         'submenu' => [
             [
@@ -83,7 +83,7 @@ $nav_items = [
         'name' => 'Households',
         'icon' => 'households',
         'url' => 'Households.php',
-        'active' => true,
+        'active' => false,
         'expandable' => false,
         'submenu' => []
     ],
@@ -129,7 +129,7 @@ $nav_items = [
         'submenu' => []
     ]
 ];
-if($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $conn->prepare("INSERT INTO households (number) VALUES (NULL) ");
     if ($stmt->execute()) {
         $last_id = $conn->insert_id;
@@ -140,11 +140,11 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         $address = $_POST['address'];
 
         $members = [];
-        foreach($_POST["name"] as $name){
+        foreach ($_POST["name"] as $name) {
             array_push($members, $name);
         }
         $members_json = implode(",", $members);
-        echo "<script>console.log('". $members_json . ".');</script>";
+        echo "<script>console.log('" . $members_json . ".');</script>";
         $members_count = sizeof($members);
 
         $stmt = $conn->prepare("UPDATE households SET id=?, household_no=?, family_head=?, address=?, members=?, members_no=? WHERE number=?");
@@ -166,6 +166,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -188,7 +189,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 280px;
             background: linear-gradient(135deg, #2980b9 0%, #6dd5fa 100%);
             padding: 20px 0;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
             position: fixed;
             overflow-y: auto;
             height: 100vh;
@@ -211,7 +212,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             align-items: center;
             justify-content: center;
             margin-right: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .admin-logo-text {
@@ -234,7 +235,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: flex;
             align-items: center;
             padding: 15px 20px;
-            color: rgba(255,255,255,0.9);
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
             transition: all 0.3s ease;
             position: relative;
@@ -243,8 +244,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             cursor: pointer;
         }
 
-        .admin-nav-link:hover, .admin-nav-link.active {
-            background: rgba(255,255,255,0.1);
+        .admin-nav-link:hover,
+        .admin-nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
             border-left-color: #fff;
             color: #fff;
         }
@@ -263,7 +265,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 20px;
             height: 20px;
             margin-right: 15px;
-            color: rgba(255,255,255,0.9);
+            color: rgba(255, 255, 255, 0.9);
             flex-shrink: 0;
         }
 
@@ -275,7 +277,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         .admin-dropdown-icon {
             width: 16px;
             height: 16px;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.7);
             transition: transform 0.3s ease;
         }
 
@@ -286,7 +288,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         .admin-submenu {
             max-height: 0;
             overflow: hidden;
-            background: rgba(0,0,0,0.1);
+            background: rgba(0, 0, 0, 0.1);
             transition: max-height 0.3s ease;
         }
 
@@ -298,16 +300,17 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: flex;
             align-items: center;
             padding: 12px 20px 12px 60px;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             font-size: 13px;
             transition: all 0.3s ease;
             border-left: 3px solid transparent;
         }
 
-        .admin-submenu-item:hover, .admin-submenu-item.active {
-            background: rgba(255,255,255,0.1);
-            border-left-color: rgba(255,255,255,0.5);
+        .admin-submenu-item:hover,
+        .admin-submenu-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: rgba(255, 255, 255, 0.5);
             color: #fff;
         }
 
@@ -315,7 +318,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 12px;
             height: 12px;
             margin-right: 12px;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .admin-logout-section {
@@ -336,7 +339,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         }
 
         .admin-welcome-text {
@@ -368,7 +371,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: #fff;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
         }
 
@@ -459,7 +462,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         .admin-btn-add-member:hover {
             background: linear-gradient(135deg, #20c997, #28a745);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .admin-member-list {
@@ -474,7 +477,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: white;
             border-radius: 8px;
             margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .admin-member-info {
@@ -556,7 +559,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         .admin-btn-submit:hover {
             background: linear-gradient(135deg, #2980b9, #3498db);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .admin-mobile-menu {
@@ -565,7 +568,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             top: 20px;
             left: 20px;
             z-index: 1000;
-            background: rgba(255,255,255,0.9);
+            background: rgba(255, 255, 255, 0.9);
             border: none;
             border-radius: 8px;
             padding: 10px;
@@ -576,7 +579,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             .admin-form-container {
                 grid-template-columns: 1fr;
             }
-            
+
             .admin-member-form {
                 grid-template-columns: 1fr;
             }
@@ -612,6 +615,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
+
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
@@ -619,7 +623,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="admin-logo">
                 <div class="admin-logo-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 5.5V7H9V5.5L3 7V9L9 10.5V12L3 13.5V15.5L9 14V16H15V14L21 15.5V13.5L15 12V10.5L21 9Z" />
+                        <path
+                            d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 5.5V7H9V5.5L3 7V9L9 10.5V12L3 13.5V15.5L9 14V16H15V14L21 15.5V13.5L15 12V10.5L21 9Z" />
                     </svg>
                 </div>
                 <div class="admin-logo-text">
@@ -629,48 +634,50 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <ul class="admin-nav-menu">
                 <?php foreach ($nav_items as $item): ?>
-                <li class="admin-nav-item">
-                    <div class="admin-nav-link <?php echo $item['expandable'] ? 'expandable' : ''; ?> <?php echo $item['active'] ? 'active' : ''; ?>">
-                        <div class="admin-nav-link-content">
-                            <div class="admin-nav-icon">
-                                <?php echo getIcon($item['icon']); ?>
+                    <li class="admin-nav-item">
+                        <div
+                            class="admin-nav-link <?php echo $item['expandable'] ? 'expandable' : ''; ?> <?php echo $item['active'] ? 'active' : ''; ?>">
+                            <div class="admin-nav-link-content">
+                                <div class="admin-nav-icon">
+                                    <?php echo getIcon($item['icon']); ?>
+                                </div>
+                                <span><?php echo $item['name']; ?></span>
                             </div>
-                            <span><?php echo $item['name']; ?></span>
-                        </div>
-                        <?php if ($item['expandable']): ?>
-                        <div class="admin-dropdown-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M7 10l5 5 5-5z"/>
-                            </svg>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <?php if (!empty($item['submenu'])): ?>
-                    <ul class="admin-submenu <?php echo $item['active'] ? 'expanded' : ''; ?>">
-                        <?php foreach ($item['submenu'] as $subitem): ?>
-                        <li class="admin-nav-item">
-                            <a href="<?php echo $subitem['url']; ?>" class="admin-submenu-item">
-                                <div class="admin-submenu-icon">
+                            <?php if ($item['expandable']): ?>
+                                <div class="admin-dropdown-icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                        <circle cx="12" cy="12" r="4"/>
+                                        <path d="M7 10l5 5 5-5z" />
                                     </svg>
                                 </div>
-                                <span><?php echo $subitem['name']; ?></span>
-                            </a>
-                        </li>
-                        <?php endforeach; ?>
-                    </ul>
-                    <?php endif; ?>
-                </li>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if (!empty($item['submenu'])): ?>
+                            <ul class="admin-submenu <?php echo $item['active'] ? 'expanded' : ''; ?>">
+                                <?php foreach ($item['submenu'] as $subitem): ?>
+                                    <li class="admin-nav-item">
+                                        <a href="<?php echo $subitem['url']; ?>" class="admin-submenu-item">
+                                            <div class="admin-submenu-icon">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                                    <circle cx="12" cy="12" r="4" />
+                                                </svg>
+                                            </div>
+                                            <span><?php echo $subitem['name']; ?></span>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </li>
                 <?php endforeach; ?>
-                
+
                 <li class="admin-nav-item admin-logout-section">
                     <div class="admin-nav-link">
                         <div class="admin-nav-link-content">
                             <div class="admin-nav-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                                    <path
+                                        d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
                                 </svg>
                             </div>
                             <span>Log out</span>
@@ -698,24 +705,27 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <!-- Household Number -->
                     <div class="admin-form-group admin-form-fullwidth">
                         <label class="admin-form-label">Household Number</label>
-                        <input type="text" name="hh-no" class="admin-form-input" placeholder="Enter Household Number" required>
+                        <input type="text" name="hh-no" class="admin-form-input" placeholder="Enter Household Number"
+                            required>
                     </div>
 
                     <!-- Head of the Family -->
                     <div class="admin-form-group admin-form-fullwidth">
                         <label class="admin-form-label">Head of the Family</label>
-                        <input type="text" name="head" class="admin-form-input" placeholder="Enter head of the family" required>
+                        <input type="text" name="head" class="admin-form-input" placeholder="Enter head of the family"
+                            required>
                     </div>
 
                     <div class="admin-form-group admin-form-fullwidth">
                         <label class="admin-form-label">Address</label>
-                        <input type="text" name="address" class="admin-form-input" placeholder="Enter the address of the household" required>
+                        <input type="text" name="address" class="admin-form-input"
+                            placeholder="Enter the address of the household" required>
                     </div>
 
                     <!-- Family Members Section -->
                     <div class="admin-form-group admin-form-fullwidth">
                         <label class="admin-form-label">Name of family members</label>
-                        
+
                         <div class="admin-family-members">
                             <div class="admin-member-form">
                                 <div>
@@ -727,8 +737,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <input type="text" class="admin-form-input" placeholder="Enter last name">
                                 </div>
                                 <button type="button" class="admin-btn-add-member">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                        fill="currentColor">
+                                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
                                     </svg>
                                     Add
                                 </button>
@@ -748,8 +759,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="admin-form-actions">
                         <button type="button" class="admin-btn-cancel">Cancel</button>
                         <button type="submit" id="save-hh" class="admin-btn-submit">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="currentColor">
+                                <path
+                                    d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z" />
                             </svg>
                             Save Household
                         </button>
@@ -761,14 +774,14 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <button class="admin-mobile-menu">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
         </svg>
     </button>
 
     <script>
         // JavaScript to handle submenu toggling
         document.querySelectorAll('.admin-nav-link.expandable').forEach(link => {
-            link.addEventListener('click', function(e) {
+            link.addEventListener('click', function (e) {
                 e.preventDefault();
                 const submenu = this.nextElementSibling;
                 if (submenu && submenu.classList.contains('admin-submenu')) {
@@ -782,7 +795,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         const mobileMenuButton = document.querySelector('.admin-mobile-menu');
         const sidebar = document.querySelector('.admin-sidebar');
 
-        mobileMenuButton.addEventListener('click', function() {
+        mobileMenuButton.addEventListener('click', function () {
             sidebar.classList.toggle('active');
         });
 
@@ -793,13 +806,13 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         const addMemberButton = document.querySelector('.admin-btn-add-member');
         let members = [];
 
-        addMemberButton.addEventListener('click', function() {
+        addMemberButton.addEventListener('click', function () {
             const firstNameInput = memberForm.querySelector('input[placeholder="Enter first name"]');
             const lastNameInput = memberForm.querySelector('input[placeholder="Enter last name"]');
-            
+
             const firstName = firstNameInput.value.trim();
             const lastName = lastNameInput.value.trim();
-            
+
             if (firstName && lastName) {
                 // Add member to array
                 members.push({
@@ -807,14 +820,14 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     lastName: lastName,
                     id: Date.now() // Unique ID for each member
                 });
-                
+
                 // Update member list
                 updateMemberList();
-                
+
                 // Clear inputs
                 firstNameInput.value = '';
                 lastNameInput.value = '';
-                
+
                 // Focus on first name input
                 firstNameInput.focus();
             } else {
@@ -825,7 +838,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         function updateMemberList() {
             memberList.innerHTML = '';
             memberCount.textContent = members.length;
-            
+
             members.forEach((member, index) => {
                 const memberItem = document.createElement('div');
                 memberItem.className = 'admin-member-item';
@@ -844,10 +857,10 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                 `;
                 memberList.appendChild(memberItem);
             });
-            
+
             // Add event listeners to remove buttons
             document.querySelectorAll('.admin-btn-remove').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     const memberId = parseInt(this.getAttribute('data-id'));
                     members = members.filter(member => member.id !== memberId);
                     updateMemberList();
@@ -874,7 +887,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             updateMemberList();
         });*/
         const submitBtn = document.getElementById('save-hh');
-        submitBtn.addEventListener('click', function(e) {
+        submitBtn.addEventListener('click', function (e) {
             if (members.length === 0) {
                 alert('Please add at least one family member');
                 e.preventDefault();
@@ -882,11 +895,12 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         });
         // Cancel button
-        document.querySelector('.admin-btn-cancel').addEventListener('click', function() {
+        document.querySelector('.admin-btn-cancel').addEventListener('click', function () {
             if (confirm('Are you sure you want to cancel? All unsaved changes will be lost.')) {
                 window.location.href = 'households.php'; // Redirect to households list
             }
         });
     </script>
 </body>
+
 </html>
