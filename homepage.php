@@ -1,7 +1,12 @@
 <?php
-// You can add PHP session management, database connections, or other logic here
-// session_start();
-// include 'config.php';
+session_start();
+
+// Database configuration
+$host = '127.0.0.1';
+$dbname = 'u539413584_db';
+$username = 'u539413584_admin';
+$password = 'Q5b&kOh+2';
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -342,3 +347,4 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
