@@ -1,3 +1,8 @@
+<?php
+// You can add PHP session management, database connections, or other logic here
+// session_start();
+// include 'config.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,153 +11,143 @@
   <title>Barangay Management System</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-   <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
 
   <style>
-    
     @media screen and (max-width: 768px) {
+      section {
+        flex-direction: column;
+        text-align: center;
+      }
+      section div {
+        max-width: 100%;
+      }
+      section img {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      section div p {
+        max-width: 100%;
+      }
+    }
+
+    /* Hero section styling */
+    .hero {
+      background: url('img/bg.png') no-repeat center center/cover;
+      position: relative;
+      color: #e9ecf5;
+      height: 100vh;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0; 
+      left: 0;
+      width: 100%; 
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      padding-top: 200px;
+      padding-bottom: 50px;
+    }
+
+    .hero img {
+      width: 500px;
+      height: 300px;
+    }
+
     section {
-      flex-direction: column;
-      text-align: center;
+      font-family: 'Segoe UI', sans-serif;
     }
-    section div {
-      max-width: 100%;
+
+    section h2 {
+      font-size: 1.5em;
+      font-weight: bold;
     }
-    section img {
-      width: 100%;
-      margin-bottom: 20px;
-    }
+
     section div p {
-      max-width: 100%;
+      font-size: 0.95em;
+      color: #333;
     }
-  }
 
-  /* Hero section styling */
-  .hero {
-    background: url('img/bg.png') no-repeat center center/cover;
-    position: relative;
-    color: #e9ecf5;
-    height: 100vh; /* Takes up the entire screen height */
-  }
+    .blue-text {
+      color: #334D94;
+    }
 
-  .hero::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; 
-    height: 100%;
-    z-index: 0;
-    pointer-events: none;
-  }
+    .text-white {
+      color: white;
+    }
 
-  .hero-content {
-    padding-top: 200px; /* move text down */
-    padding-bottom: 50px; /* add space below */
-  }
+    .report-summary {
+      background-color: #ffffff;
+    }
 
-  .hero img {
-    width: 500px;
-    height: 300px;
-  }
+    .report-summary h2 {
+      color: #334D94;
+    }
 
+    .report-summary p {
+      font-size: 1rem;
+    }
 
-  section {
-    font-family: 'Segoe UI', sans-serif;
-  }
+    .footer a:hover {
+      color: #3B9797 !important;
+      text-decoration: underline;
+    }
 
-  section h2 {
-    font-size: 1.5em;
-    font-weight: bold;
-  }
+    .text-dark {
+      background-color: #132440;
+      font: #ffffff;
+    }
 
-  section div p {
-    font-size: 0.95em;
-    color: #333;
-  }
+    /* Navbar background */
+    .navbar-custom {
+      background-color: #132440 !important;
+    }
 
-  .blue-text {
-    color: #334D94;
-  }
+    /* Transparent logo */
+    .logo-img {
+      width: 70px;
+      height: auto;
+      object-fit: contain;
+      background-color: transparent;
+    }
 
-  .text-white {
-    color: white;
-  }
+    .navbar-custom .nav-link {
+      color: #fff !important;
+      margin-left: 10px;
+    }
 
-  .report-summary {
-    background-color: #ffffff;
-  }
+    .navbar-custom .nav-link:hover {
+      text-decoration: underline;
+    }
 
-  .report-summary h2 {
-    color: #334D94;
-  }
+    .btn-orange {
+      background-color: #3B9797;
+      border: none;
+      padding: 6px 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
 
-  .report-summary p {
-    font-size: 1rem;
-  }
+    .btn-orange:hover {
+      background-color: #018790;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    }
 
-  .footer a:hover {
-    color: #3B9797 !important;
-    text-decoration: underline;
-  }
+    .navbar-light .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='white' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
 
-  .text-dark {
-    background-color: #132440;
-    font: #ffffff;
-  }
-
-  /* Navbar background */
-.navbar-custom {
-  background-color: #132440 !important;
-}
-
-/* Transparent logo */
-.logo-img {
-  width: 70px;
-  height: auto;
-  object-fit: contain;
-  background-color: transparent;
-}
-
-/* Remove link color overrides, use default Bootstrap for responsiveness */
-.navbar-custom .nav-link {
-  color: #fff !important;
-  margin-left: 10px;
-}
-
-.navbar-custom .nav-link:hover {
-  text-decoration: underline;
-}
-
-/* Optional: orange button style */
-.btn-orange {
-  background-color: #3B9797;
-  border: none;
-  padding: 6px 16px;
-  font-weight: 600;
-  border-radius: 8px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.btn-orange:hover {
-  background-color: #018790;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  
-}
-/* Change the color of the navbar toggler (hamburger icon) */
-.navbar-light .navbar-toggler-icon {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='white' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-}
-
-/* Optional: Change the border of the toggler button */
-.navbar-light .navbar-toggler {
-  border-color: rgba(255, 255, 255, 0.5); /* White border */
-}
-
-</style>
-
-
-
+    .navbar-light .navbar-toggler {
+      border-color: rgba(255, 255, 255, 0.5);
+    }
   </style>
 </head>
 <body>
@@ -160,7 +155,7 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-md navbar-light navbar-custom shadow-sm">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="#">
+    <a class="navbar-brand d-flex align-items-center" href="homepage.php">
       <img src="img/logo.png" alt="Logo" class="logo-img me-2">
       <div class="brand-text">
         <span class="d-block text-white fw-bold">BARANGAY</span>
@@ -184,24 +179,23 @@
   </div>
 </nav>
 
-
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="container hero-content">
-      <div class="row align-items-center">
-        <div class="col-lg-6 text-white">
-          <h1 class="display-5 fw-bold  " >Barangay Information Management System</h1>
-          <p class="lead text-white">
-            <strong class="text-white">Barangay Infomation Management System</strong> Makes Things Easier, Connects Everyone,<br />
-            and Helps Your Community Succeed.
-          </p>
-          <a href="residents/login.php" class="btn btn-orange text-white btn-lg mt-3">LOGIN</a>
-        </div>  
-      </div>
+<!-- Hero Section -->
+<section class="hero">
+  <div class="container hero-content">
+    <div class="row align-items-center">
+      <div class="col-lg-6 text-white">
+        <h1 class="display-5 fw-bold">Barangay Information Management System</h1>
+        <p class="lead text-white">
+          <strong class="text-white">Barangay Information Management System</strong> Makes Things Easier, Connects Everyone,<br />
+          and Helps Your Community Succeed.
+        </p>
+        <a href="residents/login.php" class="btn btn-orange text-white btn-lg mt-3">LOGIN</a>
+      </div>  
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Introduction Section with Image and Text -->
+<!-- Introduction Section with Image and Text -->
 <section style="display: flex; align-items: center; justify-content: center; gap: 40px; padding: 60px 20px; background-color: #f8f9fc; flex-wrap: wrap;">
   <div style="flex: 1; max-width: 500px;">
     <img src="img/overview.png" alt="Barangay System Overview" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
@@ -209,13 +203,13 @@
   <div style="flex: 1; max-width: 500px;">
     <h2 style="color: #334D94; margin-bottom: 20px;">Empowering Communities Through Technology</h2>
     <p style="font-size: 1em; color: #444; line-height: 1.6;">
-      The Barangay Infomation Management System helps streamline processes, reduce paperwork, and improve communication between residents and officials.
+      The Barangay Information Management System helps streamline processes, reduce paperwork, and improve communication between residents and officials.
       With real-time data access, organized records, and digital services, the system boosts efficiency and promotes transparency at the grassroots level.
     </p>
   </div>
 </section>
 
-  <!-- Key Components Section -->
+<!-- Key Components Section -->
 <section style="background-color: #e9ecf5; padding: 40px 20px; text-align: center;">
   <h2 style="color: #334D94; margin-bottom: 30px;">
     Barangay Information Management System Consists of Several Key Components and Initiatives
@@ -267,7 +261,7 @@
     <img src="img/clearance.png" alt="Digital Services" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
   </div>
   <div style="flex: 1; max-width: 500px; order: 1;">
-    <h3 style="color: #334D94; margin-bottom: 15px;">Barangay Clearnce</h3>
+    <h3 style="color: #334D94; margin-bottom: 15px;">Barangay Clearance</h3>
     <p style="font-size: 1em; color: #444; line-height: 1.6;">
       The Barangay Clearance module of the Barangay Information Management System (BIMS) allows residents to apply and secure barangay clearances promptly and easily. Residents can apply online by filling out their personal details and purpose of the clearance using the BMS platform. Barangay officials process the application and issue the clearance electronically upon verification. Residents can then opt to download the clearance or collect a printed copy at the barangay office. This process is simplified to decrease wait time, reduce paperwork, and enhance effective and clear delivery of services to the community and barangay staff.
     </p>
@@ -277,7 +271,7 @@
 <!-- Section: Image Left, Text Right -->
 <section style="display: flex; align-items: center; justify-content: center; gap: 40px; padding: 60px 20px; background-color: #e9ecf5; flex-wrap: wrap;">
   <div style="flex: 1; max-width: 500px;">
-    <img src="image/busin.png" alt="Efficient Services" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+    <img src="img/busin.png" alt="Efficient Services" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
   </div>
   <div style="flex: 1; max-width: 500px;">
     <h3 style="color: #334D94; margin-bottom: 15px;">File Blotter</h3>
@@ -286,7 +280,6 @@
     </p>
   </div>
 </section>
-
 
 <section style="padding: 60px 20px; background-color: #e9ecf5;">
   <div class="container">
@@ -297,7 +290,7 @@
 
     <div class="row justify-content-center">
       <div class="col-md-8 text-center">
-        <img src="image/graph.png" alt="Barangay Report Graph" class="img-fluid rounded shadow">
+        <img src="img/graph.png" alt="Barangay Report Graph" class="img-fluid rounded shadow">
       </div>
     </div>
   </div>
@@ -332,7 +325,7 @@
 
     <div class="row align-items-center">
       <div class="col-md-7 col-lg-8">
-        <p>© 2025 Barangay 468 Information Management System. All Rights Reserved.</p>
+        <p>© <?php echo date('Y'); ?> Barangay 468 Information Management System. All Rights Reserved.</p>
       </div>
 
       <div class="col-md-5 col-lg-4">
@@ -346,10 +339,6 @@
   </div>
 </footer>
 
-
-
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
